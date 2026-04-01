@@ -1,60 +1,110 @@
 # InsureSuite — TechNexus Malawi
-## Delivery Package v0.1 (Partial — Credits Exhausted)
+### Mid-Tier Insurance Operations Suite — Prototype v1.0
+
+> Developed by **TechNexus Malawi** | BRN.A6SNWQY | MANePS Active | PPDA Registered  
+> +265 889 941 700 | technexus_mw@proton.me | www.technexusmw.com | Blantyre, Malawi
 
 ---
 
-### 📁 Folder Structure
+## 📁 Project Structure
 
 ```
-delivery/
+InsureSuite-TechNexus/
+├── README.md
 ├── documents/
 │   ├── TechNexus_Business_Proposal_INS_2026.docx
 │   ├── TechNexus_Quotation_TNX-INS-2026-031.docx
 │   └── TechNexus_Technical_Concept_Note_INS_2026.docx
 └── insurance-suite/
-    ├── index.html          ← Login page (COMPLETE)
+    ├── index.html           ← Login / Entry point
+    ├── dashboard.html       ← Executive Dashboard
+    ├── claims.html          ← Claims Management
+    ├── policies.html        ← Policy Administration
+    ├── portfolio.html       ← Portfolio Transfer Control
+    ├── documents.html       ← Document & Records Management
+    ├── crm.html             ← CRM & Renewals Pipeline
+    ├── audit.html           ← Audit Trail & Reports
     ├── css/
-    │   └── style.css       ← Full design system (COMPLETE)
+    │   └── style.css        ← Full design system
     └── js/
-        ├── app.js          ← Charts, modals, tables, toasts (COMPLETE)
-        └── shared-nav.js   ← Sidebar + session nav (COMPLETE)
+        ├── app.js           ← Charts, modals, toasts, utilities
+        └── shared-nav.js    ← Session-aware sidebar navigation
 ```
 
 ---
 
-### ✅ What Is Complete
+## 🚀 GitHub Pages Deployment
 
-**Documents (all 3 — fully formatted, MWK @ $1=MWK1,800, TechNexus branding):**
-- Business Proposal — Mid-Tier Insurance Operations Suite
-- Formal Quotation — TNX-INS-2026-031 (itemised, MWK, payment schedule)
-- Technical Concept Note — architecture, stack, risks, implementation phases
+1. Create a new GitHub repository (e.g. `insuresuite`)
+2. Upload all files preserving the exact folder structure above
+3. Go to **Settings → Pages → Source → Deploy from branch → main → / (root)**
+4. Save — your site will be live at:  
+   `https://yourusername.github.io/insuresuite/insurance-suite/`
 
-**Web Application — Foundation (complete):**
-- `index.html` — Login page, dual-panel Microsoft Fluent design, role quick-login buttons
-- `css/style.css` — Full design system: Microsoft blue/navy palette, TechNexus branding, sidebar, topbar, cards, tables, badges, modals, forms, charts
-- `js/app.js` — Canvas bar/line/donut charts, modal engine, toast notifications, table sort & search
-- `js/shared-nav.js` — Session-aware sidebar, role injection, active nav state
-
----
-
-### 🔄 Remaining Pages (to be built in next session)
-- `dashboard.html` — KPI cards, charts, activity feed
-- `claims.html` — Claims lifecycle management
-- `policies.html` — Policy administration
-- `portfolio.html` — Portfolio transfer control
-- `documents.html` — Document repository
-- `crm.html` — CRM & renewals pipeline
-- `audit.html` — Audit trail & reports
+To make the root URL redirect automatically, add an `index.html` at the repo root:
+```html
+<!DOCTYPE html>
+<html><head><meta http-equiv="refresh" content="0;url=insurance-suite/"></head></html>
+```
 
 ---
 
-### 🚀 GitHub Deployment
-1. Create a new GitHub repo (e.g. `insuresuite`)
-2. Upload all files preserving folder structure
-3. Enable GitHub Pages → Source: `main` branch → `/ (root)`
-4. Visit: `https://yourusername.github.io/insuresuite/insurance-suite/`
+## 🔐 Demo Login
+
+Open `insurance-suite/index.html` and use any of the Quick Demo Access buttons, or:
+- **Username:** `admin` | **Password:** `demo1234`
+
+The prototype uses `sessionStorage` to persist the user session across pages.  
+No backend is required — all data is hardcoded sample data for presentation purposes.
 
 ---
 
-**TechNexus Malawi** | BRN.A6SNWQY | MANePS Active | PPDA Registered  
-+265 889 941 700 | technexus_mw@proton.me | www.technexusmw.com | Blantyre, Malawi
+## 📋 Pages Overview
+
+| Page | File | Description |
+|------|------|-------------|
+| Login | `index.html` | Dual-panel login with role quick-access |
+| Dashboard | `dashboard.html` | KPI cards, charts, SLA performance, activity feed |
+| Claims | `claims.html` | FNOL, claims register, assessment, settlement |
+| Policies | `policies.html` | Policy issuance, endorsements, renewal |
+| Portfolio Transfer | `portfolio.html` | Controlled portfolio movement with audit trail |
+| Documents | `documents.html` | Central document repository with folder tree |
+| CRM & Renewals | `crm.html` | Renewal pipeline, customer list, follow-ups |
+| Audit & Reports | `audit.html` | Approvals queue, audit log, reports, exceptions |
+
+---
+
+## 🎨 Design System
+
+- **Theme:** Microsoft Fluent UI + TechNexus navy/blue branding
+- **Primary colour:** `#0078D4` (Microsoft Blue)
+- **Navy:** `#1A2E4A` (TechNexus brand)
+- **Typography:** Segoe UI (system font)
+- **Charts:** Pure HTML5 Canvas — no external dependencies
+- **Responsive:** Sidebar collapses on screens < 768px
+
+---
+
+## 📝 Documents Included
+
+All three Word documents are fully formatted with:
+- TechNexus navy/blue branding and professional headers/footers
+- Malawian Kwacha (MWK) pricing at **$1 = MWK 1,800**
+- Page numbers, table of contents structure, and executive-grade layout
+
+| Document | Purpose |
+|----------|---------|
+| Business Proposal | Executive proposal for insurance client |
+| Formal Quotation | Itemised quote TNX-INS-2026-031 with payment schedule |
+| Technical Concept Note | Architecture, tech stack, implementation plan, risks |
+
+---
+
+## ⚙️ No Build Step Required
+
+Pure HTML5, CSS3, and vanilla JavaScript. No npm, no Node.js, no frameworks.  
+Open directly in any modern browser or deploy to any static host.
+
+---
+
+*© 2026 TechNexus Malawi. All rights reserved. Prototype for presentation purposes only.*
