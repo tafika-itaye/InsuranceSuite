@@ -4,100 +4,125 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsureSuite – Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-page">
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <!-- SPLASH SCREEN LAYER -->
+  <div id="splashScreen" class="splash">
+    <div class="splash-logo">InsureSuite</div>
+    <div class="splash-tag">Mid‑Tier Insurance Operations Suite – TechNexus Malawi</div>
+    <button id="splashContinueBtn" class="btn btn-primary">Continue</button>
+  </div>
 
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #003366 url("img/splash/splash-bg.jpg") no-repeat center center;
-      background-size: cover;
-      color: #fff;
-      min-height: 100vh;
-      position: relative;
-    }
+  <!-- LOGIN LAYER (hidden until splash ends) -->
+  <div id="mainContent" style="display:none;">
+    <div class="login-container">
+      <header>
+        <h1>InsureSuite</h1>
+        <p>Mid‑Tier Insurance Operations Suite</p>
+      </header>
 
-    /* Splash overlay */
-    .splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 51, 102, 0.85);
-      z-index: 2000;
-      text-align: center;
-    }
+      <form id="loginForm" class="login-form">
+        <h2>Select User Role</h2>
 
-    .splash-logo {
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+        <div class="form-group">
+          <label for="branchSelect">Branch</label>
+          <select id="branchSelect" required>
+            <!-- filled by JS -->
+          </select>
+        </div>
 
-    .splash-tag {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
+        <div class="form-group">
+          <label for="roleSelect">Role</label>
+          <select id="roleSelect" required>
+            <option value="">-- Select Role --</option>
+            <option value="SuperAdmin">Super Admin</option>
+            <option value="BranchManager">Branch Manager</option>
+            <option value="Underwriter">Underwriter</option>
+            <option value="ClaimsHandler">Claims Handler</option>
+            <option value="FrontDesk">Front Desk</option>
+            <option value="ReadOnly">Read‑Only</option>
+          </select>
+        </div>
 
-    .splash-btn {
-      margin-top: 1.2rem;
-      padding: 0.6rem 1.4rem;
-      font-size: 0.95rem;
-      border: 2px solid #fff;
-      border-radius: 0.3rem;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+        <button type="submit" class="btn btn-primary">Start Session</button>
 
-    .splash-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
+        <div class="dashboard-link">
+          Already logged in? <a href="dashboard.html">Go straight to Dashboard</a>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    .splash-btn:active {
-      transform: scale(0.97);
-    }
+  <script>
+    // === DUMMY DATA ===
+    window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch", code: "LW" },
+        { id: 3, name: "Mzuzu Branch", code: "MZ" }
+      ],
+      users: [
+        { id: 1, name: "Chris Kanyuka Jr", role: "SuperAdmin",  branch: 1 },
+        { id: 2, name: "Jane Moyo",         role: "BranchManager", branch: 2 },
+        { id: 3, name: "Tom Chilima",       role: "Underwriter",  branch: 1 },
+        { id: 4, name: "Grace Banda",       role: "ClaimsHandler", branch: 1 },
+        { id: 5, name: "Paul Mwale",        role: "FrontDesk",    branch: 3 },
+        { id: 6, name: "Linda Phiri",       role: "ReadOnly",     branch: 2 }
+      ]
+    };
 
-    /* Login container */
-    .login-container {
-      position: relative;
-      z-index: 1;
-      max-width: 420px;
-      margin: 4rem auto;
-      padding: 2rem 2rem 2.5rem;
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-      color: #003366;
-    }
+    // === APP LOGIC ===
+    const app = {
+      loadBranchDropdown() {
+        const sel = document.getElementById("branchSelect");
+        if (!sel || !window.data || !window.data.branches) return;
 
-    .login-container h1 {
-      margin-top: -0.2rem;
-      text-align: center;
-      color: #003366;
-    }
+        window.data.branches.forEach(br => {
+          const opt = document.createElement("option");
+          opt.value = br.id;
+          opt.textContent = br.name;
+          sel.appendChild(opt);
+        });
 
-    .login-container p {
-      text-align: center;
-      font-size: 0.9rem;
-      opacity: 0.75;
-    }
+        if (sel.options.length > 0) sel.selectedIndex = 0;
+      },
 
-    /* Form */
-    .login-form {
-      margin-top: 1.5rem;
-    }
+      initLogin() {
+        const form = document.getElementById("loginForm");
+        if (!form) return;
 
-    .form-group {
-      margin-bottom: 1rem;
-    }
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const branchSelect = document.getElementById("branchSelect");
+          const roleSelect   = document.getElementById("roleSelect");
 
+          const branchId = parseInt(branchSelect.value);
+          const role     = roleSelect.value;
+
+          if (!branchId || !role) {
+            alert("Select branch and role.");
+            return;
+          }
+
+          const user = window.data.users.find(u => u.role === role && u.branch === branchId);
+          if (!user) {
+            alert("No matching user for that role and branch.");
+            return;
+          }
+
+          const sess = { branchId, role, userId: user.id };
+          localStorage.setItem("insuresuite-session", JSON.stringify(sess));
+          window.location = "dashboard.html";
+        });
+      },
+
+      initSplash() {
+        const splash  = document.getElementById("splashScreen");
+        const main    = document.getElementById("mainContent");
+        splash.style.display = "flex";
+        main.style.disp
     .form-group label {
       display: block;
       margin-bottom: 0.25rem;
