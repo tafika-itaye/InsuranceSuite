@@ -73,7 +73,13 @@
   </main>
 
   <script>
+        // DUMMY DATA FOR CLAIMS PAGE
     window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch", code: "LW" },
+        { id: 3, name: "Mzuzu Branch", code: "MZ" }
+      ],
       claims: [
         { id: 201, claimNo: "CLM-2025-001", policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", lossDate: "2025-03-15", status: "Registered", reserve: "MK 500,000" },
         { id: 202, claimNo: "CLM-2025-002", policyNo: "POL-2025-002", customer: "City Mall Ltd", lossDate: "2025-03-20", status: "Assessing", reserve: "MK 1,200,000" },
@@ -82,16 +88,21 @@
       ]
     };
 
+    // APP LOGIC
     const app = {
       session: null,
 
+      // Load stored session
       loadSession() {
         try {
           const s = localStorage.getItem("insuresuite-session");
           if (s) this.session = JSON.parse(s);
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+          // ignore invalid JSON
+        }
       },
 
+      // Require valid session to show page
       requireSession() {
         if (!this.session) {
           window.location = "index.html";
@@ -100,17 +111,20 @@
         return true;
       },
 
+      // Set role + branch in header
       setHeader() {
         const el = document.getElementById("sessionInfo");
         if (!el || !this.session) return;
-        el.textContent = this.session.role;
+        const branch = window.data.branches.find(b => b.id === this.session.branchId);
+        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
       },
 
+      // Render claims table
       renderClaims() {
         const tbody = document.querySelector("#claimsTable tbody");
         if (!tbody) return;
-
         tbody.innerHTML = "";
+
         window.data.claims.forEach(claim => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -138,63 +152,40 @@
               alert(`Claim ${claim.claimNo}
 Policy: ${claim.policyNo}
 Status: ${claim.status}
-Reserve:      setHeader() {
-        const el = document.getElementById("sessionInfo");
-        if (!el || !this.session) return;
-        const branch = window.data.branches.find(b => b.id === this.session.branchId);
-        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
-      },
-      renderClaims() {
-        const tbody = document.querySelector("#claimsTable tbody");
-        tbody.innerHTML = "";
-        window.data.claims.forEach(claim => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${claim.claimNo}</td>
-            <td>${claim.policyNo}</td>
-            <td>${claim.customer}</td>
-            <td>${claim.lossDate}</td>
-            <td><span class="status-pill ${claim.status.toLowerCase()}">${claim.status}</span></td>
-            <td>${claim.reserve}</td>
-            <td>
-              <button class="btn btn-xs btn-primary" data-action="view" data-id="${claim.id}">View</button>
-              <button class="btn btn-xs btn-secondary" data-action="approve" data-id="${claim.id}">Approve</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        tbody.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const claim = window.data.claims.find(c => c.id === parseInt(btn.dataset.id));
-            if (!claim) return;
-            if (btn.dataset.action === "view") {
-              alert(`Claim ${claim.claimNo}
-Policy: ${claim.policyNo}
-Status: ${claim.status}
 Reserve: ${claim.reserve}`);
-            } else {
+            } else if (btn.dataset.action === "approve") {
               claim.status = "Approved";
+              claim.reserve = "MK 0";
               this.renderClaims();
             }
           });
         });
       },
+
+      // Claim form logic
       initForm() {
-        const wrap = document.getElementById("claimFormWrap");
+        const wrap  = document.getElementById("claimFormWrap");
+        const form  = document.getElementById("claimForm");
+
+        // Show form
         document.getElementById("newClaimBtn").addEventListener("click", () => {
           wrap.style.display = "block";
         });
+
+        // Hide form
         document.getElementById("cancelClaimBtn").addEventListener("click", () => {
           wrap.style.display = "none";
         });
-        document.getElementById("claimForm").addEventListener("submit", (e) => {
+
+        // Submit new claim
+        form.addEventListener("submit", (e) => {
           e.preventDefault();
+          const newId = window.data.claims.reduce((m, c) => Math.max(m, c.id), 0) + 1;
           const policyNo = document.getElementById("claimPolicyNo").value.trim();
           const lossDate = document.getElementById("claimLossDate").value;
           const description = document.getElementById("claimDescription").value.trim();
-          const newId = Math.max(...window.data.claims.map(c => c.id)) + 1;
-          window.data.claims.unshift({
+
+          window.data.claims.push({
             id: newId,
             claimNo: `CLM-${Date.now().toString().slice(-6)}`,
             policyNo,
@@ -204,11 +195,14 @@ Reserve: ${claim.reserve}`);
             reserve: "MK 0",
             description
           });
-          e.target.reset();
+
+          form.reset();
           wrap.style.display = "none";
           this.renderClaims();
         });
       },
+
+      // Initialize page
       init() {
         this.loadSession();
         if (!this.requireSession()) return;
@@ -218,88 +212,8 @@ Reserve: ${claim.reserve}`);
       }
     };
 
+    // Run on page load
     document.addEventListener("DOMContentLoaded", () => app.init());
   </script>
 </body>
-</html>      // Register new claim (dummy – adds to in‑memory data)
-      const registerClaimForm = document.getElementById("registerClaimForm");
-      registerClaimForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const policyNo = document.getElementById("policyNoInput").value.trim();
-        const lossDate = document.getElementById("lossDateInput").value;
-        const lossDesc = document.getElementById("lossDescInput").value.trim();
-
-        const policy = window.data.policies.find(p => p.policyNo === policyNo);
-        if (!policy) {
-          alert("Policy not found. Please check the policy number.");
-          return;
-        }
-
-        const newClaimNo = `CLM-${Date.now().toString(36).slice(2, 6).toUpperCase()}`;
-        const newClaim = {
-          id: window.data.claims.reduce((max, c) => Math.max(max, c.id), 0) + 1000,
-          claimNo: newClaimNo,
-          policy: policy.id,
-          lossDate: lossDate,
-          status: "Registered",
-          notes: lossDesc
-        };
-
-        window.data.claims.push(newClaim);
-        newClaimForm.reset();
-        newClaimForm.style.display = "none";
-        renderClaimsTable();
-      });
-
-      // Claims table body
-      const claimsTableBody = document.querySelector("#claimsTable tbody");
-      function renderClaimsTable() {
-        // Clear tbody
-        claimsTableBody.innerHTML = "";
-
-        window.data.claims.forEach(claim => {
-          const policy = window.data.policies.find(p => p.id === claim.policy) || {};
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = [
-            `<td>${claim.claimNo}</td>`,
-            `<td>${policy.policyNo || "Unknown"}</td>`,
-            `<td>${claim.lossDate}</td>`,
-            `<td><span class="status-pill ${getStatusClass(claim.status)}">${claim.status}</span></td>`,
-            `<td>
-              <button class="btn btn-xs btn-primary" data-claim="${claim.id}">View</button>
-              ${(app.currentSession?.role === "ClaimsHandler" || app.currentSession?.role === "BranchManager")
-                ? `<button class="btn btn-xs btn-primary" data-claim="${claim.id}">Approve</button>` : ""}
-            </td>`
-          ].join("");
-
-          claimsTableBody.appendChild(tr);
-        });
-
-        // Dummy click handlers for View/Approve
-        claimsTableBody.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", (e) => {
-            const claimId = e.target.getAttribute("data-claim");
-            const claim = window.data.claims.find(c => c.id === parseInt(claimId));
-            alert(`Viewing/Approving claim: ${claim?.claimNo} (status: ${claim?.status})`);
-          });
-        });
-      }
-
-      function getStatusClass(status) {
-        switch (status) {
-          case "Registered": return "status-yellow";
-          case "Assessing":  return "status-orange";
-          case "Approved":   return "status-green";
-          case "Closed":     return "status-blue";
-          case "Repudiated": return "status-red";
-          default:           return "status-gray";
-        }
-      }
-
-      renderClaimsTable();
-    });
-  </script>
-</body>
-  </html>
+</html>
