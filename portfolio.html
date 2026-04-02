@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InsureSuite – Portfolio Transfer</title>
+  <title>InsureSuite – Portfolio</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="portfolio-page">
   <header class="suite-header">
     <h1>InsureSuite</h1>
     <div class="user-nav">
-      <span id="currentRole"></span> •
+      <span id="sessionInfo"></span> •
       <a href="index.html" id="logoutBtn">Logout</a>
-    </header>
+    </div>
+  </header>
 
   <nav class="main-menu">
     <a href="dashboard.html" class="menu-item">Dashboard</a>
@@ -24,51 +25,47 @@
     <a href="admin.html" class="menu-item">Admin</a>
   </nav>
 
-  <main class="portfolio-main">
+  <main class="page-main">
     <section class="section-header">
       <h2>Portfolio Transfer Control</h2>
       <button id="newTransferBtn" class="btn btn-primary">New Transfer</button>
     </section>
 
-    <div id="newTransferForm" class="form-card" style="display:none;">
-      <h3>New Transfer</h3>
+    <div id="transferFormWrap" class="form-card" style="display:none;">
+      <h3>Initiate Transfer</h3>
       <form id="transferForm">
         <div class="form-row">
           <label>Type</label>
           <select id="transferType" required>
-            <option value="Policy">Policy</option>
-            <option value="Claim">Claim</option>
-            <option value="Customer">Customer</option>
+            <option>Policy</option>
+            <option>Claim</option>
+            <option>Customer</option>
           </select>
         </div>
         <div class="form-row">
-          <label>ID / Number</label>
-          <input type="text" id="transferId" required />
+          <label>Reference</label>
+          <input type="text" id="transferRef" required />
         </div>
         <div class="form-row">
-          <label>From Branch/User</label>
-          <input type="text" id="fromBranchUser" value="Current User (Simulated)" readonly />
-        </div>
-        <div class="form-row">
-          <label>To Branch/User</label>
-          <input type="text" id="toBranchUser" required placeholder="Target branch or user" />
+          <label>To</label>
+          <input type="text" id="transferTo" required placeholder="Target branch or user" />
         </div>
         <div class="form-row">
           <label>Reason</label>
           <textarea id="transferReason" rows="3" required></textarea>
         </div>
         <div class="form-row">
-          <button type="submit" class="btn btn-primary">Initiate Transfer</button>
+          <button type="submit" class="btn btn-primary">Save Transfer</button>
           <button type="button" id="cancelTransferBtn" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
     </div>
 
-    <table id="transfersTable" class="data-table">
+    <table class="data-table" id="transferTable">
       <thead>
         <tr>
           <th>Type</th>
-          <th>ID</th>
+          <th>Reference</th>
           <th>From</th>
           <th>To</th>
           <th>Status</th>
@@ -79,25 +76,108 @@
     </table>
   </main>
 
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!app.hasSession()) {
-        window.location = "index.html";
-        return;
+    window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch", code: "LW" },
+        { id: 3, name: "Mzuzu Branch", code: "MZ" }
+      ],
+      transfers: [
+        { id: 1, type: "Policy", ref: "POL-2025-002", from: "Blantyre", to: "Lilongwe", status: "Pending", reason: "Client relocated" },
+        { id: 2, type: "Claim", ref: "CLM-2025-003", from: "Blantyre", to: "Mzuzu", status: "Confirmed", reason: "Claims load balancing" },
+        { id: 3, type: "Policy", ref: "POL-2025-004", from: "Mzuzu", to: "Blantyre", status: "Pending", reason: "Senior underwriter review" }
+      ]
+    };
+
+    const app = {
+      session: null,
+      loadSession() {
+        const s = localStorage.getItem("insuresuite-session");
+        if (s) this.session = JSON.parse(s);
+      },
+      requireSession() {
+        if (!this.session) {
+          window.location = "index.html";
+          return false;
+        }
+        return true;
+      },
+      setHeader() {
+        const el = document.getElementById("sessionInfo");
+        if (!el || !this.session) return;
+        const branch = window.data.branches.find(b => b.id === this.session.branchId);
+        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
+      },
+      renderTransfers() {
+        const tbody = document.querySelector("#transferTable tbody");
+        tbody.innerHTML = "";
+        window.data.transfers.forEach(t => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.type}</td>
+            <td>${t.ref}</td>
+            <td>${t.from}</td>
+            <td>${t.to}</td>
+            <td><span class="status-pill ${t.status.toLowerCase()}">${t.status}</span></td>
+            <td>
+              <button class="btn btn-xs btn-primary" data-id="${t.id}" data-action="confirm">Confirm</button>
+              <button class="btn btn-xs btn-secondary" data-id="${t.id}" data-action="view">View</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const t = window.data.transfers.find(x => x.id === parseInt(btn.dataset.id));
+            if (!t) return;
+            if (btn.dataset.action === "confirm") {
+              t.status = "Confirmed";
+              this.renderTransfers();
+            } else {
+              alert(`Transfer ${t.type} ${t.ref}
+From: ${t.from}
+To: ${t.to}
+Reason: ${t.reason}
+Status: ${t.status}`);
+            }
+          });
+        });
+      },
+      initForm() {
+        const wrap = document.getElementById("transferFormWrap");
+        document.getElementById("newTransferBtn").addEventListener("click", () => wrap.style.display = "block");
+        document.getElementById("cancelTransferBtn").addEventListener("click", () => wrap.style.display = "none");
+        document.getElementById("transferForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const newId = Math.max(...window.data.transfers.map(t => t.id)) + 1;
+          window.data.transfers.unshift({
+            id: newId,
+            type: document.getElementById("transferType").value,
+            ref: document.getElementById("transferRef").value.trim(),
+            from: this.session ? "Current Branch" : "—",
+            to: document.getElementById("transferTo").value.trim(),
+            status: "Pending",
+            reason: document.getElementById("transferReason").value.trim()
+          });
+          e.target.reset();
+          wrap.style.display = "none";
+          this.renderTransfers();
+        });
+      },
+      init() {
+        this.loadSession();
+        if (!this.requireSession()) return;
+        this.setHeader();
+        this.renderTransfers();
+        this.initForm();
       }
+    };
 
-      app.updateMainMenu();
-
-      const currentRole = document.getElementById("currentRole");
-      if (currentRole && app.currentSession) {
-        currentRole.textContent = app.currentSession.role;
-      }
-
-      window.data.portfolioTransfers = [
-        { id: 1, type: "Policy", idNo: "POL-2025-002", from: "Blantyre", to: "Lilongwe", status: "Pending" },
-        { id: 2, type: "Claim",  idNo: "CLM-2025-003", from: "Blantyre", to: "Mzuzu",   status: "Confirmed" },
+    document.addEventListener("DOMContentLoaded", () => app.init());
+  </script>
+</body>
+</html>        { id: 2, type: "Claim",  idNo: "CLM-2025-003", from: "Blantyre", to: "Mzuzu",   status: "Confirmed" },
         { id: 3, type: "Policy", idNo: "POL-2025-004", from: "Mzuzu",    to: "Blantyre", status: "Pending" },
       ];
 
