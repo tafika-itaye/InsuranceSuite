@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="auth-page">
+
   <div class="login-container">
     <header class="suite-header">
       <h1>InsureSuite</h1>
@@ -17,7 +18,9 @@
 
       <div class="form-group">
         <label for="branchSelect">Branch</label>
-        <select id="branchSelect" required></select>
+        <select id="branchSelect" required>
+          <!-- Options will be filled by JS -->
+        </select>
       </div>
 
       <div class="form-group">
@@ -37,8 +40,109 @@
     </form>
   </div>
 
-  <!-- Dummy data and app logic -->
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+  <!-- Dummy data -->
+  <script>
+    // Make sure data is available at window.data
+    window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch",        code: "LW" },
+        { id: 3, name: "Mzuzu Branch",           code: "MZ" },
+      ],
+      users: [
+        { id: 1, name: "Chris Kanyuka Jr", role: "SuperAdmin",  branch: 1 },
+        { id: 2, name: "Jane Moyo",         role: "BranchManager", branch: 2 },
+        { id: 3, name: "Tom Chilima",       role: "Underwriter",  branch: 1 },
+        { id: 4, name: "Grace Banda",       role: "ClaimsHandler", branch: 1 },
+        { id: 5, name: "Paul Mwale",        role: "FrontDesk",    branch: 3 },
+        { id: 6, name: "Linda Phiri",       role: "ReadOnly",     branch: 2 },
+      ],
+      policies: [
+        { id: 101, policyNo: "POL-2025-001", class: "Motor", branch: 1, status: "Active", customer: "Nyasa Insurance Agency" },
+        { id: 102, policyNo: "POL-2025-002", class: "Fire",  branch: 2, status: "Active", customer: "City Mall Ltd" },
+        { id: 103, policyNo: "POL-2025-003", class: "Motor", branch: 1, status: "Lapsed",  customer: "AutoPlus Ltd" },
+        { id: 104, policyNo: "POL-2025-004", class: "Motor", branch: 3, status: "Active",  customer: "Rural Transport Co‑op" },
+        { id: 105, policyNo: "POL-2025-005", class: "Fire",  branch: 2, status: "Active",  customer: "GreenGrocers Ltd" },
+      ],
+      claims: [
+        { id: 201, claimNo: "CLM-2025-001", policy: 101, lossDate: "2025-03-15", status: "Registered" },
+        { id: 202, claimNo: "CLM-2025-002", policy: 102, lossDate: "2025-03-20", status: "Assessing" },
+        { id: 203, claimNo: "CLM-2025-003", policy: 104, lossDate: "2025-03-25", status: "Approved" },
+        { id: 204, claimNo: "CLM-2025-004", policy: 105, lossDate: "2025-03-28", status: "Closed" },
+        { id: 205, claimNo: "CLM-2025-005", policy: 101, lossDate: "2025-04-01", status: "Registered" },
+      ],
+      pendingApprovals: 5,
+      renewalsDue30Days: 12,
+      slaBreaches: 2,
+      pendingTransfers: 3,
+      openClaims: 3,
+    };
+  </script>
+
+  <!-- App logic -->
+  <script>
+    const app = {
+      currentSession: null,
+
+      init: function () {
+        this.loadBranchDropdown();
+        this.initLogin();
+      },
+
+      loadBranchDropdown: function () {
+        const sel = document.getElementById("branchSelect");
+        const data = window.data;
+
+        if (!sel || !data || !data.branches) return;
+
+        data.branches.forEach(br => {
+          const opt = document.createElement("option");
+          opt.value = br.id;
+          opt.textContent = br.name;
+          sel.appendChild(opt);
+        });
+
+        if (sel.options.length > 0) {
+          sel.selectedIndex = 0;
+        }
+      },
+
+      initLogin: function () {
+        const form = document.getElementById("loginForm");
+        if (!form) return;
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const branchSelect = document.getElementById("branchSelect");
+          const roleSelect   = document.getElementById("roleSelect");
+
+          const branchId = parseInt(branchSelect.value);
+          const role     = roleSelect.value;
+
+          if (!branchId || !role) {
+            alert("Please select both branch and role.");
+            return;
+          }
+
+          const user = window.data.users.find(u => u.role === role && u.branch === branchId);
+          if (!user) {
+            alert("No user found for this role and branch.");
+            return;
+          }
+
+          const sess = { branchId, role, userId: user.id };
+          localStorage.setItem("insuresuite-session", JSON.stringify(sess));
+
+          window.location = "dashboard.html";
+        });
+      }
+    };
+
+    // Run only when DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
+      app.init();
+    });
+  </script>
 </body>
 </html>
