@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="policies-page">
+
   <header class="suite-header">
     <h1>InsureSuite</h1>
     <div class="user-nav">
       <span id="sessionInfo"></span> •
-      <a href="index.html" id="logoutBtn">Logout</a>
+      <a href="index.html">Logout</a>
     </div>
   </header>
 
@@ -26,6 +27,7 @@
   </nav>
 
   <main class="page-main">
+
     <section class="section-header">
       <h2>Policy Administration</h2>
       <button id="newPolicyBtn" class="btn btn-primary">Issue New Policy</button>
@@ -46,10 +48,10 @@
         <div class="form-row">
           <label>Class</label>
           <select id="policyClass" required>
-            <option>Motor</option>
-            <option>Fire</option>
-            <option>Life</option>
-            <option>Health</option>
+            <option value="Motor">Motor</option>
+            <option value="Fire">Fire</option>
+            <option value="Life">Life</option>
+            <option value="Health">Health</option>
           </select>
         </div>
         <div class="form-row">
@@ -75,7 +77,7 @@
       </form>
     </div>
 
-    <table class="data-table" id="policiesTable">
+    <table id="policiesTable" class="data-table">
       <thead>
         <tr>
           <th>Policy #</th>
@@ -93,7 +95,7 @@
 
     <section style="margin-top:2rem;">
       <h3>Endorsements</h3>
-      <table class="data-table" id="endorsementsTable">
+      <table id="endorsementsTable" class="data-table">
         <thead>
           <tr>
             <th>Policy #</th>
@@ -105,9 +107,11 @@
         <tbody></tbody>
       </table>
     </section>
+
   </main>
 
   <script>
+        // DUMMY DATA FOR POLICIES PAGE
     window.data = {
       branches: [
         { id: 1, name: "Head Office – Blantyre", code: "BO" },
@@ -116,23 +120,32 @@
       ],
       policies: [
         { id: 101, policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", class: "Motor", inception: "2025-01-01", expiry: "2026-01-01", status: "Active", premium: 240000 },
-        { id: 102, policyNo: "POL-2025-002", customer: "City Mall Ltd", class: "Fire", inception: "2025-02-01", expiry: "2026-02-01", status: "Active", premium: 480000 },
-        { id: 103, policyNo: "POL-2025-003", customer: "AutoPlus Ltd", class: "Motor", inception: "2024-12-01", expiry: "2025-12-01", status: "Lapsed", premium: 220000 },
-        { id: 104, policyNo: "POL-2025-004", customer: "Rural Transport Co-op", class: "Motor", inception: "2025-03-01", expiry: "2026-03-01", status: "Active", premium: 330000 },
-        { id: 105, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd", class: "Fire", inception: "2025-04-01", expiry: "2026-04-01", status: "Active", premium: 510000 }
+        { id: 102, policyNo: "POL-2025-002", customer: "City Mall Ltd",          class: "Fire",  inception: "2025-02-01", expiry: "2026-02-01", status: "Active", premium: 480000 },
+        { id: 103, policyNo: "POL-2025-003", customer: "AutoPlus Ltd",           class: "Motor", inception: "2024-12-01", expiry: "2025-12-01", status: "Lapsed", premium: 220000 },
+        { id: 104, policyNo: "POL-2025-004", customer: "Rural Transport Co-op",  class: "Motor", inception: "2025-03-01", expiry: "2026-03-01", status: "Active", premium: 330000 },
+        { id: 105, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd",       class: "Fire",  inception: "2025-04-01", expiry: "2026-04-01", status: "Active", premium: 510000 }
       ],
       endorsements: [
         { policyNo: "POL-2025-002", type: "Premium Adjustment", description: "Fire load recalculated after stock increase", effectiveDate: "2025-04-10" },
-        { policyNo: "POL-2025-004", type: "Name Change", description: "Customer renamed after merger", effectiveDate: "2025-04-15" }
+        { policyNo: "POL-2025-004", type: "Name Change",        description: "Customer renamed after merger", effectiveDate: "2025-04-15" }
       ]
     };
 
+    // APP LOGIC
     const app = {
       session: null,
+
+      // Load stored session
       loadSession() {
-        const s = localStorage.getItem("insuresuite-session");
-        if (s) this.session = JSON.parse(s);
+        try {
+          const s = localStorage.getItem("insuresuite-session");
+          if (s) this.session = JSON.parse(s);
+        } catch (e) {
+          // ignore invalid JSON
+        }
       },
+
+      // Require valid session to show page
       requireSession() {
         if (!this.session) {
           window.location = "index.html";
@@ -140,12 +153,16 @@
         }
         return true;
       },
+
+      // Set role + branch in header
       setHeader() {
         const el = document.getElementById("sessionInfo");
         if (!el || !this.session) return;
         const branch = window.data.branches.find(b => b.id === this.session.branchId);
         el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
       },
+
+      // Get filtered policies by search term
       getFilteredPolicies() {
         const term = document.getElementById("policySearchInput").value.trim().toLowerCase();
         return window.data.policies.filter(p => {
@@ -153,9 +170,13 @@
           return text.includes(term);
         });
       },
+
+      // Render policies table
       renderPolicies() {
         const tbody = document.querySelector("#policiesTable tbody");
+        if (!tbody) return;
         tbody.innerHTML = "";
+
         this.getFilteredPolicies().forEach(policy => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -174,24 +195,31 @@
           tbody.appendChild(tr);
         });
 
-        tbody.querySelectorAll("button").forEach(btn => {
+        tbody.querySelectorAll("button[data-action]").forEach(btn => {
           btn.addEventListener("click", () => {
-            const policy = window.data.policies.find(p => p.id === parseInt(btn.dataset.id));
+            const id = parseInt(btn.dataset.id);
+            const policy = window.data.policies.find(x => x.id === id);
             if (!policy) return;
+
             if (btn.dataset.action === "view") {
               alert(`Policy ${policy.policyNo}
 Customer: ${policy.customer}
 Class: ${policy.class}
-Status: ${policy.status}`);
-            } else {
-              alert(`Endorsement flow opened for ${policy.policyNo} (demo only).`);
+Status: ${policy.status}
+Premium: ${policy.premium}`);
+            } else if (btn.dataset.action === "endorse") {
+              alert(`Endorsement flow for ${policy.policyNo} (demo only).`);
             }
           });
         });
       },
+
+      // Render endorsements table
       renderEndorsements() {
         const tbody = document.querySelector("#endorsementsTable tbody");
+        if (!tbody) return;
         tbody.innerHTML = "";
+
         window.data.endorsements.forEach(e => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -203,14 +231,27 @@ Status: ${policy.status}`);
           tbody.appendChild(tr);
         });
       },
+
+      // Policy form logic
       initForm() {
         const wrap = document.getElementById("policyFormWrap");
-        document.getElementById("newPolicyBtn").addEventListener("click", () => wrap.style.display = "block");
-        document.getElementById("cancelPolicyBtn").addEventListener("click", () => wrap.style.display = "none");
-        document.getElementById("policyForm").addEventListener("submit", (e) => {
+        const form = document.getElementById("policyForm");
+
+        // Show form
+        document.getElementById("newPolicyBtn").addEventListener("click", () => {
+          wrap.style.display = "block";
+        });
+
+        // Hide form
+        document.getElementById("cancelPolicyBtn").addEventListener("click", () => {
+          wrap.style.display = "none";
+        });
+
+        // Submit new policy
+        form.addEventListener("submit", (e) => {
           e.preventDefault();
-          const newId = Math.max(...window.data.policies.map(p => p.id)) + 1;
-          window.data.policies.unshift({
+          const newId = window.data.policies.reduce((m, p) => Math.max(m, p.id), 0) + 1;
+          window.data.policies.push({
             id: newId,
             policyNo: `POL-${Date.now().toString().slice(-6)}`,
             customer: document.getElementById("policyCustomer").value.trim(),
@@ -220,12 +261,17 @@ Status: ${policy.status}`);
             status: "Active",
             premium: parseFloat(document.getElementById("policyPremium").value || "0")
           });
-          e.target.reset();
+
+          form.reset();
           wrap.style.display = "none";
           this.renderPolicies();
         });
+
+        // Filter policies on search
         document.getElementById("policySearchInput").addEventListener("input", () => this.renderPolicies());
       },
+
+      // Initialize page
       init() {
         this.loadSession();
         if (!this.requireSession()) return;
@@ -236,6 +282,7 @@ Status: ${policy.status}`);
       }
     };
 
+    // Run on page load
     document.addEventListener("DOMContentLoaded", () => app.init());
   </script>
 </body>
