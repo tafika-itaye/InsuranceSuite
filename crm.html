@@ -10,7 +10,7 @@
   <header class="suite-header">
     <h1>InsureSuite</h1>
     <div class="user-nav">
-      <span id="currentRole"></span> •
+      <span id="sessionInfo"></span> •
       <a href="index.html" id="logoutBtn">Logout</a>
     </div>
   </header>
@@ -25,30 +25,30 @@
     <a href="admin.html" class="menu-item">Admin</a>
   </nav>
 
-  <main class="crm-main">
+  <main class="page-main">
     <section class="section-header">
       <h2>CRM & Renewals</h2>
       <button id="newCustomerBtn" class="btn btn-primary">New Customer</button>
     </section>
 
-    <div id="newCustomerForm" class="form-card" style="display:none;">
-      <h3>Add New Customer</h3>
+    <div id="customerFormWrap" class="form-card" style="display:none;">
+      <h3>Add Customer</h3>
       <form id="customerForm">
         <div class="form-row">
           <label>Name</label>
-          <input type="text" id="customerName" required />
+          <input type="text" id="custName" required />
         </div>
         <div class="form-row">
           <label>National ID</label>
-          <input type="text" id="customerId" />
+          <input type="text" id="custNid" />
         </div>
         <div class="form-row">
           <label>Phone</label>
-          <input type="text" id="customerPhone" />
+          <input type="text" id="custPhone" />
         </div>
         <div class="form-row">
           <label>Email</label>
-          <input type="email" id="customerEmail" />
+          <input type="email" id="custEmail" />
         </div>
         <div class="form-row">
           <button type="submit" class="btn btn-primary">Save Customer</button>
@@ -57,11 +57,11 @@
       </form>
     </div>
 
-    <table id="customersTable" class="data-table">
+    <table class="data-table" id="customersTable">
       <thead>
         <tr>
           <th>Customer</th>
-          <th>ID / Phone</th>
+          <th>Contact</th>
           <th>Last Policy</th>
           <th>Status</th>
           <th>Actions</th>
@@ -70,11 +70,9 @@
       <tbody></tbody>
     </table>
 
-    <!-- Renewals pipeline -->
-    <section id="renewalsSection" class="section-header" style="margin-top:2rem;">
-      <h2>Renewals Pipeline (Next 30 Days)</h2>
-
-      <table id="renewalsTable" class="data-table">
+    <section style="margin-top:2rem;">
+      <h3>Renewals Pipeline</h3>
+      <table class="data-table" id="renewalsTable">
         <thead>
           <tr>
             <th>Policy #</th>
@@ -89,15 +87,131 @@
     </section>
   </main>
 
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!app.hasSession()) {
-        window.location = "index.html";
-        return;
-      }
+    window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch", code: "LW" },
+        { id: 3, name: "Mzuzu Branch", code: "MZ" }
+      ],
+      customers: [
+        { id: 1, name: "Nyasa Insurance Agency", nid: "NIA-001", phone: "+265 111 111 111", email: "info@nyasa.co.mw", lastPolicy: "POL-2025-001", status: "Active" },
+        { id: 2, name: "City Mall Ltd", nid: "CML-002", phone: "+265 222 222 222", email: "accounts@citymall.co.mw", lastPolicy: "POL-2025-002", status: "Active" },
+        { id: 3, name: "AutoPlus Ltd", nid: "APL-003", phone: "+265 333 333 333", email: "ops@autoplus.co.mw", lastPolicy: "POL-2025-003", status: "Lapsed" },
+        { id: 4, name: "Rural Transport Co-op", nid: "RTC-004", phone: "+265 444 444 444", email: "chair@rtc.coop", lastPolicy: "POL-2025-004", status: "Active" },
+        { id: 5, name: "GreenGrocers Ltd", nid: "GGL-005", phone: "+265 555 555 555", email: "sales@greengrocers.mw", lastPolicy: "POL-2025-005", status: "Active" }
+      ],
+      renewals: [
+        { id: 1, policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", dueDate: "2025-04-05", status: "Pending" },
+        { id: 2, policyNo: "POL-2025-002", customer: "City Mall Ltd", dueDate: "2025-04-08", status: "Contacted" },
+        { id: 3, policyNo: "POL-2025-004", customer: "Rural Transport Co-op", dueDate: "2025-04-12", status: "OfferSent" },
+        { id: 4, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd", dueDate: "2025-04-15", status: "Pending" }
+      ]
+    };
 
+    const app = {
+      session: null,
+      loadSession() {
+        const s = localStorage.getItem("insuresuite-session");
+        if (s) this.session = JSON.parse(s);
+      },
+      requireSession() {
+        if (!this.session) {
+          window.location = "index.html";
+          return false;
+        }
+        return true;
+      },
+      setHeader() {
+        const el = document.getElementById("sessionInfo");
+        if (!el || !this.session) return;
+        const branch = window.data.branches.find(b => b.id === this.session.branchId);
+        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
+      },
+      renderCustomers() {
+        const tbody = document.querySelector("#customersTable tbody");
+        tbody.innerHTML = "";
+        window.data.customers.forEach(c => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${c.name}</td>
+            <td>${c.phone}<br>${c.email}</td>
+            <td>${c.lastPolicy}</td>
+            <td><span class="status-pill ${c.status.toLowerCase()}">${c.status}</span></td>
+            <td>
+              <button class="btn btn-xs btn-primary" data-id="${c.id}" data-action="view">View</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const c = window.data.customers.find(x => x.id === parseInt(btn.dataset.id));
+            alert(`Customer: ${c.name}
+Contact: ${c.phone}
+Email: ${c.email}
+Last Policy: ${c.lastPolicy}`);
+          });
+        });
+      },
+      renderRenewals() {
+        const tbody = document.querySelector("#renewalsTable tbody");
+        tbody.innerHTML = "";
+        window.data.renewals.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.policyNo}</td>
+            <td>${r.customer}</td>
+            <td>${r.dueDate}</td>
+            <td><span class="status-pill ${r.status.toLowerCase()}">${r.status}</span></td>
+            <td>
+              <button class="btn btn-xs btn-primary" data-id="${r.id}" data-action="follow">Follow Up</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const r = window.data.renewals.find(x => x.id === parseInt(btn.dataset.id));
+            if (r) alert(`Follow up opened for ${r.policyNo} (${r.customer})`);
+          });
+        });
+      },
+      initForm() {
+        const wrap = document.getElementById("customerFormWrap");
+        document.getElementById("newCustomerBtn").addEventListener("click", () => wrap.style.display = "block");
+        document.getElementById("cancelCustomerBtn").addEventListener("click", () => wrap.style.display = "none");
+        document.getElementById("customerForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const newId = Math.max(...window.data.customers.map(c => c.id)) + 1;
+          window.data.customers.unshift({
+            id: newId,
+            name: document.getElementById("custName").value.trim(),
+            nid: document.getElementById("custNid").value.trim(),
+            phone: document.getElementById("custPhone").value.trim(),
+            email: document.getElementById("custEmail").value.trim(),
+            lastPolicy: "—",
+            status: "Active"
+          });
+          e.target.reset();
+          wrap.style.display = "none";
+          this.renderCustomers();
+        });
+      },
+      init() {
+        this.loadSession();
+        if (!this.requireSession()) return;
+        this.setHeader();
+        this.renderCustomers();
+        this.renderRenewals();
+        this.initForm();
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => app.init());
+  </script>
+</body>
+</html>
       app.updateMainMenu();
 
       const currentRole = document.getElementById("currentRole");
