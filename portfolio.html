@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsureSuite – Portfolio Transfer</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="portfolio-page">
+  <header class="suite-header">
+    <h1>InsureSuite</h1>
+    <div class="user-nav">
+      <span id="currentRole"></span> •
+      <a href="index.html" id="logoutBtn">Logout</a>
+    </header>
+
+  <nav class="main-menu">
+    <a href="dashboard.html" class="menu-item">Dashboard</a>
+    <a href="claims.html" class="menu-item">Claims</a>
+    <a href="policies.html" class="menu-item">Policies</a>
+    <a href="crm.html" class="menu-item">CRM & Renewals</a>
+    <a href="portfolio.html" class="menu-item active">Portfolio</a>
+    <a href="documents.html" class="menu-item">Documents</a>
+    <a href="admin.html" class="menu-item">Admin</a>
+  </nav>
+
+  <main class="portfolio-main">
+    <section class="section-header">
+      <h2>Portfolio Transfer Control</h2>
+      <button id="newTransferBtn" class="btn btn-primary">New Transfer</button>
+    </section>
+
+    <div id="newTransferForm" class="form-card" style="display:none;">
+      <h3>New Transfer</h3>
+      <form id="transferForm">
+        <div class="form-row">
+          <label>Type</label>
+          <select id="transferType" required>
+            <option value="Policy">Policy</option>
+            <option value="Claim">Claim</option>
+            <option value="Customer">Customer</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>ID / Number</label>
+          <input type="text" id="transferId" required />
+        </div>
+        <div class="form-row">
+          <label>From Branch/User</label>
+          <input type="text" id="fromBranchUser" value="Current User (Simulated)" readonly />
+        </div>
+        <div class="form-row">
+          <label>To Branch/User</label>
+          <input type="text" id="toBranchUser" required placeholder="Target branch or user" />
+        </div>
+        <div class="form-row">
+          <label>Reason</label>
+          <textarea id="transferReason" rows="3" required></textarea>
+        </div>
+        <div class="form-row">
+          <button type="submit" class="btn btn-primary">Initiate Transfer</button>
+          <button type="button" id="cancelTransferBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <table id="transfersTable" class="data-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>ID</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!app.hasSession()) {
+        window.location = "index.html";
+        return;
+      }
+
+      app.updateMainMenu();
+
+      const currentRole = document.getElementById("currentRole");
+      if (currentRole && app.currentSession) {
+        currentRole.textContent = app.currentSession.role;
+      }
+
+      window.data.portfolioTransfers = [
+        { id: 1, type: "Policy", idNo: "POL-2025-002", from: "Blantyre", to: "Lilongwe", status: "Pending" },
+        { id: 2, type: "Claim",  idNo: "CLM-2025-003", from: "Blantyre", to: "Mzuzu",   status: "Confirmed" },
+        { id: 3, type: "Policy", idNo: "POL-2025-004", from: "Mzuzu",    to: "Blantyre", status: "Pending" },
+      ];
+
+      // Toggle new transfer form
+      const newTransferBtn = document.getElementById("newTransferBtn");
+      const newTransferForm = document.getElementById("newTransferForm");
+      const cancelTransferBtn = document.getElementById("cancelTransferBtn");
+
+      newTransferBtn.addEventListener("click", () => {
+        newTransferForm.style.display = "block";
+      });
+
+      cancelTransferBtn.addEventListener("click", () => {
+        newTransferForm.style.display = "none";
+      });
+
+      // Submit transfer (simulated)
+      const transferForm = document.getElementById("transferForm");
+      transferForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const type   = document.getElementById("transferType").value;
+        const idNo   = document.getElementById("transferId").value;
+        const to     = document.getElementById("toBranchUser").value;
+        const reason = document.getElementById("transferReason").value;
+
+        const maxId = Math.max(...window.data.portfolioTransfers.map(t => t.id)) + 10;
+        window.data.portfolioTransfers.push({
+          id: maxId,
+          type: type,
+          idNo: idNo,
+          from: "Simulated Current Branch",
+          to: to,
+          reason: reason,
+          status: "Pending"
+        });
+
+        transferForm.reset();
+        newTransferForm.style.display = "none";
+        renderTransfersTable();
+      });
+
+      // Render transfer history
+      const transfersTable = document.querySelector("#transfersTable tbody");
+      function renderTransfersTable() {
+        transfersTable.innerHTML = "";
+
+        window.data.portfolioTransfers.forEach(t => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = [
+            `<td>${t.type}</td>`,
+            `<td>${t.idNo}</td>`,
+            `<td>${t.from}</td>`,
+            `<td>${t.to}</td>`,
+            `<td><span class="status-pill ${getStatusClass(t.status)}">${t.status}</span></td>`,
+            `<td>
+              ${t.status === "Pending"
+                ? `<button class="btn btn-xs btn-primary" data-enc="${t.id}">Confirm</button>`
+                : `<button class="btn btn-xs btn-secondary" data-enc="${t.id}">View</button>`}
+            </td>`
+          ].join("");
+          transfersTable.appendChild(tr);
+        });
+
+        transfersTable.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            const tid = e.target.getAttribute("data-enc");
+            const t = window.data.portfolioTransfers.find(x => x.id === parseInt(tid));
+            if (!t) return;
+
+            if (t.status === "Pending") {
+              if (confirm(`Confirm transfer of ${t.type} ${t.idNo} to ${t.to}?`)) {
+                t.status = "Confirmed";
+                renderTransfersTable();
+              }
+            } else {
+              alert(`Viewing transfer: ${t.type} ${t.idNo} (${t.status})
+Reason: ${t.reason}`);
+            }
+          });
+        });
+      }
+
+      function getStatusClass(status) {
+        switch (status) {
+          case "Pending": return "status-yellow";
+          case "Confirmed": return "status-green";
+          default: return "status-gray";
+        }
+      }
+
+      renderTransfersTable();
+    });
+  </script>
+</body>
+</html>
