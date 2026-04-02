@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>InsureSuite – Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-page">
+  <header class="suite-header">
+    <h1>InsureSuite</h1>
+    <div class="user-nav">
+      <span id="currentRole"></span> •
+      <a href="index.html" id="logoutBtn">Logout</a>
+    </div>
+  </header>
 
+  <nav class="main-menu">
+    <a href="dashboard.html" class="menu-item active">Dashboard</a>
+    <a href="claims.html" id="claimsMenu" class="menu-item">Claims</a>
+    <a href="policies.html" id="policiesMenu" class="menu-item">Policies</a>
+    <a href="crm.html" id="crmMenu" class="menu-item">CRM & Renewals</a>
+    <a href="portfolio.html" id="portfolioMenu" class="menu-item">Portfolio</a>
+    <a href="documents.html" id="documentsMenu" class="menu-item">Documents</a>
+    <a href="admin.html" id="adminMenu" class="menu-item">Admin</a>
+  </nav>
+
+  <main class="dashboard-main">
+    <div class="kpi-grid">
+      <div class="kpi-card orange">
+        <h3>Open Claims</h3>
+        <div class="kpi-value" id="kpiOpenClaims">-</div>
+      </div>
+      <div class="kpi-card green">
+        <h3>Active Policies</h3>
+        <div class="kpi-value" id="kpiActivePolicies">-</div>
+      </div>
+      <div class="kpi-card red">
+        <h3>Pending Approvals</h3>
+        <div class="kpi-value" id="kpiPendingApprovals">-</div>
+      </div>
+      <div class="kpi-card blue">
+        <h3>Renewals Due (30 days)</h3>
+        <div class="kpi-value" id="kpiRenewalsDue30">-</div>
+      </div>
+      <div class="kpi-card yellow">
+        <h3>SLA Breaches</h3>
+        <div class="kpi-value" id="kpiSLABreaches">-</div>
+      </div>
+      <div class="kpi-card purple">
+        <h3>Pending Transfers</h3>
+        <div class="kpi-value" id="kpiPendingTransfers">-</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h4>Claims Status Distribution</h4>
+        <canvas id="claimsChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4>Policy Classes</h4>
+        <canvas id="policiesChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check if session is active
+      if (!app.hasSession()) {
+        window.location = "index.html";
+        return;
+      }
+
+      app.updateMainMenu();
+      app.loadDashboard();
+    });
+  </script>
+</body>
+  </html>
