@@ -52,7 +52,7 @@
   </main>
 
   <script>
-// DUMMY DATA FOR DASHBOARD
+        // DUMMY DATA FOR DASHBOARD
     window.data = {
       claims: [
         { status: "Registered" },
@@ -156,98 +156,6 @@
     };
 
     // Run on page load
-    document.addEventListener("DOMContentLoaded", () => app.init());
-  </script>
-</body>
-</html>
-      loadKpis() {
-        const { openClaims, policies, pendingApprovals, renewalsDue30Days, slaBreaches, pendingTransfers } = window.data;
-        document.getElementById("kpiOpenClaims").textContent        = openClaims;
-        document.getElementById("kpiActivePolicies").textContent    = policies.filter(p => p.status === "Active").length;
-        document.getElementById("kpiPendingApprovals").textContent  = pendingApprovals;
-        document.getElementById("kpiRenewalsDue30").textContent     = renewalsDue30Days;
-        document.getElementById("kpiSLABreaches").textContent       = slaBreaches;
-        document.getElementById("kpiPendingTransfers").textContent  = pendingTransfers;
-      },
-
-      loadCharts() {
-        const claimCounts = window.data.claims.reduce((acc, c) => {
-          acc[c.status] = (acc[c.status] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("claimsChart").getContext("2d"), {
-          type: "pie",
-          data: {
-            labels: Object.keys(claimCounts),
-            datasets: [{ data: Object.values(claimCounts), backgroundColor: ["#003366","#007bff","#28a745","#6c757d"] }]
-          }
-        });
-
-        const policyCounts = window.data.policies.reduce((acc, p) => {
-          acc[p.class] = (acc[p.class] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("policiesChart").getContext("2d"), {
-          type: "bar",
-          data: {
-            labels: Object.keys(policyCounts),
-            datasets: [{ label: "Policies", data: Object.values(policyCounts), backgroundColor: "#003366" }]
-          }
-        });
-      },
-
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;
-        this.setHeader();
-        this.loadKpis();
-        this.loadCharts();
-      }
-    };
-
-    document.addEventListener("DOMContentLoaded", () => app.init());
-  </script>
-</body>
-</html>        document.getElementById("kpiActivePolicies").textContent = window.data.policies.filter(p => p.status === "Active").length;
-        document.getElementById("kpiPendingApprovals").textContent = window.data.pendingApprovals;
-        document.getElementById("kpiRenewalsDue30").textContent = window.data.renewalsDue30Days;
-        document.getElementById("kpiSLABreaches").textContent = window.data.slaBreaches;
-        document.getElementById("kpiPendingTransfers").textContent = window.data.pendingTransfers;
-      },
-      loadCharts() {
-        const claimCounts = window.data.claims.reduce((acc, c) => {
-          acc[c.status] = (acc[c.status] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("claimsChart"), {
-          type: "pie",
-          data: {
-            labels: Object.keys(claimCounts),
-            datasets: [{ data: Object.values(claimCounts), backgroundColor: ["#007bff", "#ffc107", "#28a745", "#6c757d"] }]
-          }
-        });
-
-        const policyCounts = window.data.policies.reduce((acc, p) => {
-          acc[p.class] = (acc[p.class] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("policiesChart"), {
-          type: "bar",
-          data: {
-            labels: Object.keys(policyCounts),
-            datasets: [{ label: "Policies", data: Object.values(policyCounts), backgroundColor: "#003366" }]
-          }
-        });
-      },
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;
-        this.setHeader();
-        this.loadKpis();
-        this.loadCharts();
-      }
-    };
-
     document.addEventListener("DOMContentLoaded", () => app.init());
   </script>
 </body>
