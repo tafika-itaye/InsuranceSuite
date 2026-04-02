@@ -81,10 +81,13 @@ const app = {
     });
   },
 
-  // Branch dropdown
+  // Branch dropdown (now safe because DOM is ready)
   initBranchDropdown: function () {
     const branchSelect = document.getElementById("branchSelect");
     if (!branchSelect) return;
+
+    // Clear any existing options
+    branchSelect.innerHTML = "";
 
     window.data.branches.forEach(br => {
       const opt = document.createElement("option");
@@ -98,6 +101,81 @@ const app = {
     }
   },
 
+  // Dummy event handlers
+  addEventHandlers: function () {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        this.clearSession();
+      });
+    }
+  },
+
+  // Dashboard numbers
+  loadDashboard: function () {
+    this.loadKPIs();
+    this.loadCharts();
+  },
+
+  loadKPIs: function () {
+    document.getElementById("kpiOpenClaims")        ?.textContent = window.data.openClaims;
+    document.getElementById("kpiActivePolicies")    ?.textContent = window.data.policies.filter(p => p.status === "Active").length;
+    document.getElementById("kpiPendingApprovals")  ?.textContent = window.data.pendingApprovals;
+    document.getElementById("kpiRenewalsDue30")     ?.textContent = window.data.renewalsDue30Days;
+    document.getElementById("kpiSLABreaches")       ?.textContent = window.data.slaBreaches;
+    document.getElementById("kpiPendingTransfers")  ?.textContent = window.data.pendingTransfers;
+  },
+
+  loadCharts: function () {
+    // Claims by status
+    const statusData = window.data.claims.reduce((acc, cl) => {
+      acc[cl.status] = (acc[cl.status] || 0) + 1;
+      return acc;
+    }, {});
+
+    const labels = Object.keys(statusData);
+    const counts = Object.values(statusData);
+
+    const claimsCtx = document.getElementById("claimsChart")?.getContext("2d");
+    if (claimsCtx) {
+      new Chart(claimsCtx, {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{ data: counts, backgroundColor: ["#003366","#007bff","#28a745","#ffc107","#dc3545"] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    // Policy classes
+    const classData = window.data.policies.reduce((acc, p) => {
+      acc[p.class] = (acc[p.class] || 0) + 1;
+      return acc;
+    }, {});
+
+    const classLabels = Object.keys(classData);
+    const classCounts = Object.values(classData);
+
+    const policiesCtx = document.getElementById("policiesChart")?.getContext("2d");
+    if (policiesCtx) {
+      new Chart(policiesCtx, {
+        type: "bar",
+        data: {
+          labels: classLabels,
+          datasets: [{ label: "Policies", data: classCounts, backgroundColor: "#003366" }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  }
+};
+
+// Run only when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  app.loadSession();
+  app.init();
+});
   // Dashboard numbers
   loadDashboard: function () {
     this.loadKPIs();
