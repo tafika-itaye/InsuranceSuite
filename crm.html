@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsureSuite – CRM & Renewals</title>
-  <!-- Link shared style (same as other pages) -->
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="crm-page">
@@ -34,7 +33,6 @@
       <button id="newCustomerBtn" class="btn btn-primary">New Customer</button>
     </section>
 
-    <!-- Customer form (hidden by default) -->
     <div id="customerFormWrap" class="form-card" style="display:none;">
       <h3>Add Customer</h3>
       <form id="customerForm">
@@ -48,7 +46,7 @@
         </div>
         <div class="form-row">
           <label>Phone</label>
-          <input type="tel" id="custPhone" />
+          <input type="text" id="custPhone" />
         </div>
         <div class="form-row">
           <label>Email</label>
@@ -61,8 +59,7 @@
       </form>
     </div>
 
-    <!-- Customers table -->
-    <table class="data-table" id="customersTable">
+    <table id="customersTable" class="data-table">
       <thead>
         <tr>
           <th>Customer</th>
@@ -75,10 +72,9 @@
       <tbody></tbody>
     </table>
 
-    <!-- Renewals pipeline -->
     <section style="margin-top:2rem;">
       <h3>Renewals Pipeline (Next 30 Days)</h3>
-      <table class="data-table" id="renewalsTable">
+      <table id="renewalsTable" class="data-table">
         <thead>
           <tr>
             <th>Policy #</th>
@@ -95,7 +91,7 @@
   </main>
 
   <script>
-    // === DUMMY DATA (for demo only) ===
+// DUMMY DATA FOR CRM PAGE
     window.data = {
       branches: [
         { id: 1, name: "Head Office – Blantyre", code: "BO" },
@@ -117,27 +113,30 @@
       ]
     };
 
-    // === APP LOGIC (minimal) ===
+    // APP LOGIC
     const app = {
       session: null,
 
+      // Load stored session
       loadSession() {
         try {
           const s = localStorage.getItem("insuresuite-session");
           if (s) this.session = JSON.parse(s);
         } catch (e) {
-          console.warn("Invalid session JSON.");
+          // ignore invalid JSON
         }
       },
 
+      // Require valid session to show page
       requireSession() {
         if (!this.session) {
-          window.location = "index.html";  // this is the LINE that stops it loading
+          window.location = "index.html";
           return false;
         }
         return true;
       },
 
+      // Set role + branch in header
       setHeader() {
         const el = document.getElementById("sessionInfo");
         if (!el || !this.session) return;
@@ -145,43 +144,47 @@
         el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
       },
 
+      // Render customer list
       renderCustomers() {
         const tbody = document.querySelector("#customersTable tbody");
         if (!tbody) return;
-
         tbody.innerHTML = "";
+
         window.data.customers.forEach(c => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${c.name}</td>
-            <td>${c.phone}<br>${c.email}</td>
+            <td>${c.phone}<br><small>${c.email}</small></td>
             <td>${c.lastPolicy}</td>
             <td><span class="status-pill ${c.status.toLowerCase()}">${c.status}</span></td>
             <td>
-              <button class="btn btn-xs btn-primary" data-id="${c.id}">View</button>
+              <button class="btn btn-xs btn-primary" data-id="${c.id}" data-action="view">View</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
 
-        tbody.querySelectorAll("button[data-id]").forEach(btn => {
+        tbody.querySelectorAll("button[data-action]").forEach(btn => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
             const c = window.data.customers.find(x => x.id === id);
             if (!c) return;
-            alert(`Customer: ${c.name}
+            if (btn.dataset.action === "view") {
+              alert(`Customer: ${c.name}
 Contact: ${c.phone}
 Email: ${c.email}
 Last Policy: ${c.lastPolicy}`);
+            }
           });
         });
       },
 
+      // Render renewals
       renderRenewals() {
         const tbody = document.querySelector("#renewalsTable tbody");
         if (!tbody) return;
-
         tbody.innerHTML = "";
+
         window.data.renewals.forEach(r => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -190,35 +193,41 @@ Last Policy: ${c.lastPolicy}`);
             <td>${r.dueDate}</td>
             <td><span class="status-pill ${r.status.toLowerCase()}">${r.status}</span></td>
             <td>
-              <button class="btn btn-xs btn-primary" data-id="${r.id}">Follow Up</button>
+              <button class="btn btn-xs btn-primary" data-id="${r.id}" data-action="follow">Follow Up</button>
             </td>
           `;
           tbody.appendChild(tr);
         });
 
-        tbody.querySelectorAll("button[data-id]").forEach(btn => {
+        tbody.querySelectorAll("button[data-action]").forEach(btn => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
             const r = window.data.renewals.find(x => x.id === id);
             if (!r) return;
-            alert(`Follow up: ${r.policyNo} (${r.customer})`);
+            if (btn.dataset.action === "follow") {
+              alert(`Follow up: ${r.policyNo} for ${r.customer}`);
+            }
           });
         });
       },
 
+      // Customer form logic
       initForm() {
         const wrap = document.getElementById("customerFormWrap");
-        if (!wrap) return;
+        const form = document.getElementById("customerForm");
 
+        // Show form
         document.getElementById("newCustomerBtn").addEventListener("click", () => {
           wrap.style.display = "block";
         });
 
+        // Hide form
         document.getElementById("cancelCustomerBtn").addEventListener("click", () => {
           wrap.style.display = "none";
         });
 
-        document.getElementById("customerForm").addEventListener("submit", (e) => {
+        // Submit new customer
+        form.addEventListener("submit", (e) => {
           e.preventDefault();
           const newId = window.data.customers.reduce((m, c) => Math.max(m, c.id), 0) + 1;
           const name  = document.getElementById("custName").value.trim();
@@ -236,209 +245,13 @@ Last Policy: ${c.lastPolicy}`);
             status: "Active"
           });
 
-          e.target.reset();
+          form.reset();
           wrap.style.display = "none";
           this.renderCustomers();
         });
       },
 
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;  // if this fails, CRM never starts
-        this.setHeader();
-        this.renderCustomers();
-        this.renderRenewals();
-        this.initForm();
-      }
-    };
-
-    // === Run only once DOM is ready ===
-    document.addEventListener("DOMContentLoaded", () => {
-      app.init();
-    });
-  </script>
-</body>
-</html>        if (!this.session) {
-          window.location = "index.html";
-          return false;
-        }
-        return true;
-      },
-      setHeader() {
-        const el = document.getElementById("sessionInfo");
-        if (!el || !this.session) return;
-        const branch = window.data.branches.find(b => b.id === this.session.branchId);
-        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
-      },
-      renderTransfers() {
-        const tbody = document.querySelector("#transferTable tbody");
-        tbody.innerHTML = "";
-        window.data.transfers.forEach(t => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${t.type}</td>
-            <td>${t.ref}</td>
-            <td>${t.from}</td>
-            <td>${t.to}</td>
-            <td><span class="status-pill ${t.status.toLowerCase()}">${t.status}</span></td>
-            <td>
-              <button class="btn btn-xs btn-primary" data-id="${t.id}" data-action="confirm">Confirm</button>
-              <button class="btn btn-xs btn-secondary" data-id="${t.id}" data-action="view">View</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-        tbody.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const t = window.data.transfers.find(x => x.id === parseInt(btn.dataset.id));
-            if (!t) return;
-            if (btn.dataset.action === "confirm") {
-              t.status = "Confirmed";
-              this.renderTransfers();
-            } else {
-              alert(`Transfer ${t.type} ${t.ref}
-From: ${t.from}
-To: ${t.to}
-Reason: ${t.reason}
-Status: ${t.status}`);
-            }
-          });
-        });
-      },
-      initForm() {
-        const wrap = document.getElementById("transferFormWrap");
-        document.getElementById("newTransferBtn").addEventListener("click", () => wrap.style.display = "block");
-        document.getElementById("cancelTransferBtn").addEventListener("click", () => wrap.style.display = "none");
-        document.getElementById("transferForm").addEventListener("submit", (e) => {
-          e.preventDefault();
-          const newId = Math.max(...window.data.transfers.map(t => t.id)) + 1;
-          window.data.transfers.unshift({
-            id: newId,
-            type: document.getElementById("transferType").value,
-            ref: document.getElementById("transferRef").value.trim(),
-            from: this.session ? "Current Branch" : "—",
-            to: document.getElementById("transferTo").value.trim(),
-            status: "Pending",
-            reason: document.getElementById("transferReason").value.trim()
-          });
-          e.target.reset();
-          wrap.style.display = "none";
-          this.renderTransfers();
-        });
-      },
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;
-        this.setHeader();
-        this.renderTransfers();
-        this.initForm();
-      }
-    };
-
-    document.addEventListener("DOMContentLoaded", () => app.init());
-  </script>
-</body>
-</html>        { id: 3, name: "AutoPlus Ltd", nid: "APL-003", phone: "+265 333 333 333", email: "ops@autoplus.co.mw", lastPolicy: "POL-2025-003", status: "Lapsed" },
-        { id: 4, name: "Rural Transport Co-op", nid: "RTC-004", phone: "+265 444 444 444", email: "chair@rtc.coop", lastPolicy: "POL-2025-004", status: "Active" },
-        { id: 5, name: "GreenGrocers Ltd", nid: "GGL-005", phone: "+265 555 555 555", email: "sales@greengrocers.mw", lastPolicy: "POL-2025-005", status: "Active" }
-      ],
-      renewals: [
-        { id: 1, policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", dueDate: "2025-04-05", status: "Pending" },
-        { id: 2, policyNo: "POL-2025-002", customer: "City Mall Ltd", dueDate: "2025-04-08", status: "Contacted" },
-        { id: 3, policyNo: "POL-2025-004", customer: "Rural Transport Co-op", dueDate: "2025-04-12", status: "OfferSent" },
-        { id: 4, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd", dueDate: "2025-04-15", status: "Pending" }
-      ]
-    };
-
-    const app = {
-      session: null,
-      loadSession() {
-        const s = localStorage.getItem("insuresuite-session");
-        if (s) this.session = JSON.parse(s);
-      },
-      requireSession() {
-        if (!this.session) {
-          window.location = "index.html";
-          return false;
-        }
-        return true;
-      },
-      setHeader() {
-        const el = document.getElementById("sessionInfo");
-        if (!el || !this.session) return;
-        const branch = window.data.branches.find(b => b.id === this.session.branchId);
-        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
-      },
-      renderCustomers() {
-        const tbody = document.querySelector("#customersTable tbody");
-        tbody.innerHTML = "";
-        window.data.customers.forEach(c => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${c.name}</td>
-            <td>${c.phone}<br>${c.email}</td>
-            <td>${c.lastPolicy}</td>
-            <td><span class="status-pill ${c.status.toLowerCase()}">${c.status}</span></td>
-            <td>
-              <button class="btn btn-xs btn-primary" data-id="${c.id}" data-action="view">View</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-        tbody.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const c = window.data.customers.find(x => x.id === parseInt(btn.dataset.id));
-            alert(`Customer: ${c.name}
-Contact: ${c.phone}
-Email: ${c.email}
-Last Policy: ${c.lastPolicy}`);
-          });
-        });
-      },
-      renderRenewals() {
-        const tbody = document.querySelector("#renewalsTable tbody");
-        tbody.innerHTML = "";
-        window.data.renewals.forEach(r => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${r.policyNo}</td>
-            <td>${r.customer}</td>
-            <td>${r.dueDate}</td>
-            <td><span class="status-pill ${r.status.toLowerCase()}">${r.status}</span></td>
-            <td>
-              <button class="btn btn-xs btn-primary" data-id="${r.id}" data-action="follow">Follow Up</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-        tbody.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const r = window.data.renewals.find(x => x.id === parseInt(btn.dataset.id));
-            if (r) alert(`Follow up opened for ${r.policyNo} (${r.customer})`);
-          });
-        });
-      },
-      initForm() {
-        const wrap = document.getElementById("customerFormWrap");
-        document.getElementById("newCustomerBtn").addEventListener("click", () => wrap.style.display = "block");
-        document.getElementById("cancelCustomerBtn").addEventListener("click", () => wrap.style.display = "none");
-        document.getElementById("customerForm").addEventListener("submit", (e) => {
-          e.preventDefault();
-          const newId = Math.max(...window.data.customers.map(c => c.id)) + 1;
-          window.data.customers.unshift({
-            id: newId,
-            name: document.getElementById("custName").value.trim(),
-            nid: document.getElementById("custNid").value.trim(),
-            phone: document.getElementById("custPhone").value.trim(),
-            email: document.getElementById("custEmail").value.trim(),
-            lastPolicy: "—",
-            status: "Active"
-          });
-          e.target.reset();
-          wrap.style.display = "none";
-          this.renderCustomers();
-        });
-      },
+      // Initialize page
       init() {
         this.loadSession();
         if (!this.requireSession()) return;
@@ -449,135 +262,8 @@ Last Policy: ${c.lastPolicy}`);
       }
     };
 
+    // Run on page load
     document.addEventListener("DOMContentLoaded", () => app.init());
   </script>
 </body>
 </html>
-      app.updateMainMenu();
-
-      const currentRole = document.getElementById("currentRole");
-      if (currentRole && app.currentSession) {
-        currentRole.textContent = app.currentSession.role;
-      }
-
-      // Dummy renewals data (for demo)
-      window.data.renewals = [
-        { id: 1, policyId: 101, policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", due: "2025-04-05", status: "Pending" },
-        { id: 2, policyId: 102, policyNo: "POL-2025-002", customer: "City Mall Ltd",          due: "2025-04-08", status: "ContactedPhone" },
-        { id: 3, policyId: 104, policyNo: "POL-2025-004", customer: "Rural Transport Co‑op", due: "2025-04-12", status: "ContactedEmail" },
-        { id: 4, policyId: 105, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd",      due: "2025-04-15", status: "OfferSent" },
-      ];
-
-      // Toggle new customer form
-      const newCustomerBtn = document.getElementById("newCustomerBtn");
-      const newCustomerForm = document.getElementById("newCustomerForm");
-      const cancelCustomerBtn = document.getElementById("cancelCustomerBtn");
-
-      newCustomerBtn.addEventListener("click", () => {
-        newCustomerForm.style.display = "block";
-      });
-
-      cancelCustomerBtn.addEventListener("click", () => {
-        newCustomerForm.style.display = "none";
-      });
-
-      // Add new customer (dummy)
-      const customerForm = document.getElementById("customerForm");
-      customerForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const name  = document.getElementById("customerName").value.trim();
-        const id    = document.getElementById("customerId").value.trim();
-        const phone = document.getElementById("customerPhone").value.trim();
-        const email = document.getElementById("customerEmail").value.trim();
-
-        // For demo, just add to policies (pretend customer reached via policy)
-        const maxId = window.data.policies.reduce((m, p) => Math.max(m, p.id), 0) + 100;
-        window.data.policies.push({
-          id: maxId,
-          policyNo: `POL-2025-${maxId}`,
-          class: "Motor",
-          customer: name,
-          inception: "2025-04-01",
-          expiry: "2026-04-01",
-          status: "Active",
-          sumInsured: 1500000,
-          premium: 120000,
-          branch: 1
-        });
-
-        customerForm.reset();
-        newCustomerForm.style.display = "none";
-        renderCustomersTable();
-        renderRenewalsTable();
-      });
-
-      // Render customers (by policy customer)
-      const customersTable = document.querySelector("#customersTable tbody");
-      function renderCustomersTable() {
-        customersTable.innerHTML = "";
-
-        const customers = window.data.policies
-          .filter(p => p.customer && p.customer.length > 0)
-          .map(p => p.customer)
-          .filter((v, i, a) => a.indexOf(v) === i);
-
-        customers.forEach(cust => {
-          const lastPolicy = window.data.policies.find(p => p.customer === cust);
-          const tr = document.createElement("tr");
-          tr.innerHTML = [
-            `<td class="nowrap">${cust}</td>`,
-            `<td>${lastPolicy?.id || "–"}</td>`,
-            `<td class="nowrap">${lastPolicy?.policyNo || "–"}</td>`,
-            `<td><span class="status-pill status-blue">${lastPolicy?.status || "Unknown"}</span></td>`,
-            `<td>
-              <button class="btn btn-xs btn-primary" data-cust="${cust}">View</button>
-            </td>`
-          ].join("");
-          customersTable.appendChild(tr);
-        });
-
-        customersTable.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", (e) => {
-            const cust = e.target.getAttribute("data-cust");
-            const policies = window.data.policies.filter(p => p.customer === cust);
-            const list = policies.map(p => `${p.policyNo} (${p.class})`).join(", ");
-            alert(`Customer: ${cust}
-Policies: ${list || "None"}`);
-          });
-        });
-      }
-
-      // Render renewals pipeline
-      const renewalsTable = document.querySelector("#renewalsTable tbody");
-      function renderRenewalsTable() {
-        renewalsTable.innerHTML = "";
-
-        window.data.renewals.forEach(r => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = [
-            `<td>${r.policyNo}</td>`,
-            `<td>${r.customer}</td>`,
-            `<td>${r.due}</td>`,
-            `<td><span class="status-pill ${r.status === "OfferSent" ? "status-green" : "status-yellow"}">${r.status}</span></td>`,
-            `<td>
-              <button class="btn btn-xs btn-primary" data-renewal="${r.id}">Follow Up</button>
-            </td>`
-          ].join("");
-          renewalsTable.appendChild(tr);
-        });
-
-        renewalsTable.querySelectorAll("button").forEach(btn => {
-          btn.addEventListener("click", (e) => {
-            const rid = e.target.getAttribute("data-renewal");
-            const r = window.data.renewals.find(x => x.id === parseInt(rid));
-            alert(`Following up renewal: ${r?.policyNo} for ${r?.customer}`);
-          });
-        });
-      }
-
-      renderCustomersTable();
-      renderRenewalsTable();
-    });
-  </script>
-</body>
-  </html>
