@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InsureSuite – CRM & Renewals</title>
+  <title>InsureSuite – Portfolio</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="crm-page">
+<body class="portfolio-page">
   <header class="suite-header">
     <h1>InsureSuite</h1>
     <div class="user-nav">
@@ -19,72 +19,61 @@
     <a href="dashboard.html" class="menu-item">Dashboard</a>
     <a href="claims.html" class="menu-item">Claims</a>
     <a href="policies.html" class="menu-item">Policies</a>
-    <a href="crm.html" class="menu-item active">CRM & Renewals</a>
-    <a href="portfolio.html" class="menu-item">Portfolio</a>
+    <a href="crm.html" class="menu-item">CRM & Renewals</a>
+    <a href="portfolio.html" class="menu-item active">Portfolio</a>
     <a href="documents.html" class="menu-item">Documents</a>
     <a href="admin.html" class="menu-item">Admin</a>
   </nav>
 
   <main class="page-main">
     <section class="section-header">
-      <h2>CRM & Renewals</h2>
-      <button id="newCustomerBtn" class="btn btn-primary">New Customer</button>
+      <h2>Portfolio Transfer Control</h2>
+      <button id="newTransferBtn" class="btn btn-primary">New Transfer</button>
     </section>
 
-    <div id="customerFormWrap" class="form-card" style="display:none;">
-      <h3>Add Customer</h3>
-      <form id="customerForm">
+    <div id="transferFormWrap" class="form-card" style="display:none;">
+      <h3>Initiate Transfer</h3>
+      <form id="transferForm">
         <div class="form-row">
-          <label>Name</label>
-          <input type="text" id="custName" required />
+          <label>Type</label>
+          <select id="transferType" required>
+            <option>Policy</option>
+            <option>Claim</option>
+            <option>Customer</option>
+          </select>
         </div>
         <div class="form-row">
-          <label>National ID</label>
-          <input type="text" id="custNid" />
+          <label>Reference</label>
+          <input type="text" id="transferRef" required />
         </div>
         <div class="form-row">
-          <label>Phone</label>
-          <input type="text" id="custPhone" />
+          <label>To</label>
+          <input type="text" id="transferTo" required placeholder="Target branch or user" />
         </div>
         <div class="form-row">
-          <label>Email</label>
-          <input type="email" id="custEmail" />
+          <label>Reason</label>
+          <textarea id="transferReason" rows="3" required></textarea>
         </div>
         <div class="form-row">
-          <button type="submit" class="btn btn-primary">Save Customer</button>
-          <button type="button" id="cancelCustomerBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Transfer</button>
+          <button type="button" id="cancelTransferBtn" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
     </div>
 
-    <table class="data-table" id="customersTable">
+    <table class="data-table" id="transferTable">
       <thead>
         <tr>
-          <th>Customer</th>
-          <th>Contact</th>
-          <th>Last Policy</th>
+          <th>Type</th>
+          <th>Reference</th>
+          <th>From</th>
+          <th>To</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-
-    <section style="margin-top:2rem;">
-      <h3>Renewals Pipeline</h3>
-      <table class="data-table" id="renewalsTable">
-        <thead>
-          <tr>
-            <th>Policy #</th>
-            <th>Customer</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
   </main>
 
   <script>
@@ -94,10 +83,101 @@
         { id: 2, name: "Lilongwe Branch", code: "LW" },
         { id: 3, name: "Mzuzu Branch", code: "MZ" }
       ],
-      customers: [
-        { id: 1, name: "Nyasa Insurance Agency", nid: "NIA-001", phone: "+265 111 111 111", email: "info@nyasa.co.mw", lastPolicy: "POL-2025-001", status: "Active" },
-        { id: 2, name: "City Mall Ltd", nid: "CML-002", phone: "+265 222 222 222", email: "accounts@citymall.co.mw", lastPolicy: "POL-2025-002", status: "Active" },
-        { id: 3, name: "AutoPlus Ltd", nid: "APL-003", phone: "+265 333 333 333", email: "ops@autoplus.co.mw", lastPolicy: "POL-2025-003", status: "Lapsed" },
+      transfers: [
+        { id: 1, type: "Policy", ref: "POL-2025-002", from: "Blantyre", to: "Lilongwe", status: "Pending", reason: "Client relocated" },
+        { id: 2, type: "Claim", ref: "CLM-2025-003", from: "Blantyre", to: "Mzuzu", status: "Confirmed", reason: "Claims load balancing" },
+        { id: 3, type: "Policy", ref: "POL-2025-004", from: "Mzuzu", to: "Blantyre", status: "Pending", reason: "Senior underwriter review" }
+      ]
+    };
+
+    const app = {
+      session: null,
+      loadSession() {
+        const s = localStorage.getItem("insuresuite-session");
+        if (s) this.session = JSON.parse(s);
+      },
+      requireSession() {
+        if (!this.session) {
+          window.location = "index.html";
+          return false;
+        }
+        return true;
+      },
+      setHeader() {
+        const el = document.getElementById("sessionInfo");
+        if (!el || !this.session) return;
+        const branch = window.data.branches.find(b => b.id === this.session.branchId);
+        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
+      },
+      renderTransfers() {
+        const tbody = document.querySelector("#transferTable tbody");
+        tbody.innerHTML = "";
+        window.data.transfers.forEach(t => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.type}</td>
+            <td>${t.ref}</td>
+            <td>${t.from}</td>
+            <td>${t.to}</td>
+            <td><span class="status-pill ${t.status.toLowerCase()}">${t.status}</span></td>
+            <td>
+              <button class="btn btn-xs btn-primary" data-id="${t.id}" data-action="confirm">Confirm</button>
+              <button class="btn btn-xs btn-secondary" data-id="${t.id}" data-action="view">View</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const t = window.data.transfers.find(x => x.id === parseInt(btn.dataset.id));
+            if (!t) return;
+            if (btn.dataset.action === "confirm") {
+              t.status = "Confirmed";
+              this.renderTransfers();
+            } else {
+              alert(`Transfer ${t.type} ${t.ref}
+From: ${t.from}
+To: ${t.to}
+Reason: ${t.reason}
+Status: ${t.status}`);
+            }
+          });
+        });
+      },
+      initForm() {
+        const wrap = document.getElementById("transferFormWrap");
+        document.getElementById("newTransferBtn").addEventListener("click", () => wrap.style.display = "block");
+        document.getElementById("cancelTransferBtn").addEventListener("click", () => wrap.style.display = "none");
+        document.getElementById("transferForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const newId = Math.max(...window.data.transfers.map(t => t.id)) + 1;
+          window.data.transfers.unshift({
+            id: newId,
+            type: document.getElementById("transferType").value,
+            ref: document.getElementById("transferRef").value.trim(),
+            from: this.session ? "Current Branch" : "—",
+            to: document.getElementById("transferTo").value.trim(),
+            status: "Pending",
+            reason: document.getElementById("transferReason").value.trim()
+          });
+          e.target.reset();
+          wrap.style.display = "none";
+          this.renderTransfers();
+        });
+      },
+      init() {
+        this.loadSession();
+        if (!this.requireSession()) return;
+        this.setHeader();
+        this.renderTransfers();
+        this.initForm();
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => app.init());
+  </script>
+</body>
+</html>        { id: 3, name: "AutoPlus Ltd", nid: "APL-003", phone: "+265 333 333 333", email: "ops@autoplus.co.mw", lastPolicy: "POL-2025-003", status: "Lapsed" },
         { id: 4, name: "Rural Transport Co-op", nid: "RTC-004", phone: "+265 444 444 444", email: "chair@rtc.coop", lastPolicy: "POL-2025-004", status: "Active" },
         { id: 5, name: "GreenGrocers Ltd", nid: "GGL-005", phone: "+265 555 555 555", email: "sales@greengrocers.mw", lastPolicy: "POL-2025-005", status: "Active" }
       ],
