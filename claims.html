@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsureSuite – Claims</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -9,7 +10,7 @@
   <header class="suite-header">
     <h1>InsureSuite</h1>
     <div class="user-nav">
-      <span id="currentRole"></span> •
+      <span id="sessionInfo"></span> •
       <a href="index.html" id="logoutBtn">Logout</a>
     </div>
   </header>
@@ -24,41 +25,43 @@
     <a href="admin.html" class="menu-item">Admin</a>
   </nav>
 
-  <main class="claims-main">
+  <main class="page-main">
     <section class="section-header">
-      <h2>Claims</h2>
+      <h2>Claims Management</h2>
       <button id="newClaimBtn" class="btn btn-primary">Register New Claim (FNOL)</button>
     </section>
 
-    <div id="newClaimForm" class="form-card" style="display:none;">
-      <h3>Register Claim – FNOL</h3>
-      <form id="registerClaimForm">
+    <div id="claimFormWrap" class="form-card" style="display:none;">
+      <h3>Register Claim</h3>
+      <form id="claimForm">
         <div class="form-row">
           <label>Policy Number</label>
-          <input type="text" id="policyNoInput" required />
+          <input type="text" id="claimPolicyNo" placeholder="POL-2025-001" required />
         </div>
         <div class="form-row">
           <label>Date of Loss</label>
-          <input type="date" id="lossDateInput" required />
+          <input type="date" id="claimLossDate" required />
         </div>
         <div class="form-row">
           <label>Loss Description</label>
-          <textarea id="lossDescInput" rows="3" required></textarea>
+          <textarea id="claimDescription" rows="4" required></textarea>
         </div>
         <div class="form-row">
-          <button type="submit" class="btn btn-primary">Create Claim</button>
+          <button type="submit" class="btn btn-primary">Save Claim</button>
           <button type="button" id="cancelClaimBtn" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
     </div>
 
-    <table id="claimsTable" class="data-table">
+    <table class="data-table" id="claimsTable">
       <thead>
         <tr>
           <th>Claim #</th>
           <th>Policy</th>
+          <th>Customer</th>
           <th>Loss Date</th>
           <th>Status</th>
+          <th>Reserve</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -66,38 +69,118 @@
     </table>
   </main>
 
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Ensure session
-      if (!app.hasSession()) {
-        window.location = "index.html";
-        return;
+    window.data = {
+      branches: [
+        { id: 1, name: "Head Office – Blantyre", code: "BO" },
+        { id: 2, name: "Lilongwe Branch", code: "LW" },
+        { id: 3, name: "Mzuzu Branch", code: "MZ" }
+      ],
+      claims: [
+        { id: 201, claimNo: "CLM-2025-001", policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", lossDate: "2025-03-15", status: "Registered", reserve: "MK 500,000" },
+        { id: 202, claimNo: "CLM-2025-002", policyNo: "POL-2025-002", customer: "City Mall Ltd", lossDate: "2025-03-20", status: "Assessing", reserve: "MK 1,200,000" },
+        { id: 203, claimNo: "CLM-2025-003", policyNo: "POL-2025-004", customer: "Rural Transport Co-op", lossDate: "2025-03-25", status: "Approved", reserve: "MK 800,000" },
+        { id: 204, claimNo: "CLM-2025-004", policyNo: "POL-2025-005", customer: "GreenGrocers Ltd", lossDate: "2025-03-28", status: "Closed", reserve: "MK 0" }
+      ]
+    };
+
+    const app = {
+      session: null,
+      loadSession() {
+        const s = localStorage.getItem("insuresuite-session");
+        if (s) this.session = JSON.parse(s);
+      },
+      requireSession() {
+        if (!this.session) {
+          window.location = "index.html";
+          return false;
+        }
+        return true;
+      },
+      setHeader() {
+        const el = document.getElementById("sessionInfo");
+        if (!el || !this.session) return;
+        const branch = window.data.branches.find(b => b.id === this.session.branchId);
+        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
+      },
+      renderClaims() {
+        const tbody = document.querySelector("#claimsTable tbody");
+        tbody.innerHTML = "";
+        window.data.claims.forEach(claim => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${claim.claimNo}</td>
+            <td>${claim.policyNo}</td>
+            <td>${claim.customer}</td>
+            <td>${claim.lossDate}</td>
+            <td><span class="status-pill ${claim.status.toLowerCase()}">${claim.status}</span></td>
+            <td>${claim.reserve}</td>
+            <td>
+              <button class="btn btn-xs btn-primary" data-action="view" data-id="${claim.id}">View</button>
+              <button class="btn btn-xs btn-secondary" data-action="approve" data-id="${claim.id}">Approve</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll("button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const claim = window.data.claims.find(c => c.id === parseInt(btn.dataset.id));
+            if (!claim) return;
+            if (btn.dataset.action === "view") {
+              alert(`Claim ${claim.claimNo}
+Policy: ${claim.policyNo}
+Status: ${claim.status}
+Reserve: ${claim.reserve}`);
+            } else {
+              claim.status = "Approved";
+              this.renderClaims();
+            }
+          });
+        });
+      },
+      initForm() {
+        const wrap = document.getElementById("claimFormWrap");
+        document.getElementById("newClaimBtn").addEventListener("click", () => {
+          wrap.style.display = "block";
+        });
+        document.getElementById("cancelClaimBtn").addEventListener("click", () => {
+          wrap.style.display = "none";
+        });
+        document.getElementById("claimForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const policyNo = document.getElementById("claimPolicyNo").value.trim();
+          const lossDate = document.getElementById("claimLossDate").value;
+          const description = document.getElementById("claimDescription").value.trim();
+          const newId = Math.max(...window.data.claims.map(c => c.id)) + 1;
+          window.data.claims.unshift({
+            id: newId,
+            claimNo: `CLM-${Date.now().toString().slice(-6)}`,
+            policyNo,
+            customer: "Demo Customer",
+            lossDate,
+            status: "Registered",
+            reserve: "MK 0",
+            description
+          });
+          e.target.reset();
+          wrap.style.display = "none";
+          this.renderClaims();
+        });
+      },
+      init() {
+        this.loadSession();
+        if (!this.requireSession()) return;
+        this.setHeader();
+        this.renderClaims();
+        this.initForm();
       }
+    };
 
-      app.updateMainMenu();
-
-      // Show role in header
-      const currentRole = document.getElementById("currentRole");
-      if (currentRole && app.currentSession) {
-        currentRole.textContent = app.currentSession.role;
-      }
-
-      // Toggle new claim form
-      const newClaimBtn = document.getElementById("newClaimBtn");
-      const newClaimForm = document.getElementById("newClaimForm");
-      const cancelClaimBtn = document.getElementById("cancelClaimBtn");
-
-      newClaimBtn.addEventListener("click", () => {
-        newClaimForm.style.display = "block";
-      });
-
-      cancelClaimBtn.addEventListener("click", () => {
-        newClaimForm.style.display = "none";
-      });
-
-      // Register new claim (dummy – adds to in‑memory data)
+    document.addEventListener("DOMContentLoaded", () => app.init());
+  </script>
+</body>
+</html>      // Register new claim (dummy – adds to in‑memory data)
       const registerClaimForm = document.getElementById("registerClaimForm");
       registerClaimForm.addEventListener("submit", (e) => {
         e.preventDefault();
