@@ -1,273 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Policies — InsureSuite</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Policies | InsureSuite</title>
+  <link rel="stylesheet" href="css/style.css">
+  
 </head>
-<body>
-<div class="app-layout">
-  <div id="sidebar-mount"></div>
-  <div class="main-content">
-    <div class="topbar">
-      <div class="topbar-breadcrumb">
-        <span>InsureSuite</span><span class="sep">›</span>
-        <span class="crumb-current">Policy Administration</span>
+<body><div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">Insure<span>Suite</span></div>
+      <ul class="sidebar-nav">
+        <li class="nav-section">Main</li>
+        <li><a href="dashboard.html">🏠 Dashboard</a></li>
+        <li class="nav-section">Insurance</li>
+        <li><a href="policies.html">📋 Policies</a></li>
+        <li><a href="claims.html">🛡️ Claims</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="brokers.html">🤝 Brokers</a></li>
+        <li class="nav-section">Public</li>
+        <li><a href="quotes.html">💬 Get a Quote</a></li>
+        <li><a href="index.html">🌐 Public Site</a></li>
+        <li class="nav-section">Account</li>
+        <li><a href="#" class="logout-btn">🔓 Logout</a></li>
+      </ul>
+    </aside>
+<div class="main-content">
+
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button id="sideToggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">☰</button>
+        <span class="top-bar-title">Policies</span>
       </div>
-      <div class="topbar-actions">
-        <div class="branch-badge">🏢 <span id="topbar-branch">Blantyre HQ</span></div>
-        <div class="topbar-divider"></div>
-        <button class="topbar-btn outline" onclick="showToast('Exporting policy schedule…','success')">📥 Export</button>
-        <button class="topbar-btn" onclick="openModal('newPolicyModal')">+ New Policy</button>
+      <div class="user-chip">
+        <div class="avatar">TI</div>
+        <span style="font-size:.85rem;color:#6b7c93;">Tafika Itaye &nbsp;|&nbsp; Admin</span>
+        <a href="#" class="logout-btn" style="font-size:.8rem;color:#e63946;margin-left:.5rem;">Logout</a>
       </div>
     </div>
-
-    <div class="page-body">
-      <div class="page-title-row">
-        <div>
-          <div class="page-title">Policy Administration</div>
-          <div class="page-subtitle">Quotation, issuance, endorsements, renewals, and policy history</div>
-        </div>
-      </div>
-
-      <div class="stats-grid mb-24">
-        <div class="stat-card"><div class="stat-accent blue"></div><div class="stat-icon">📄</div><div class="stat-value">1,042</div><div class="stat-label">Active Policies</div></div>
-        <div class="stat-card"><div class="stat-accent orange"></div><div class="stat-icon">🔔</div><div class="stat-value">64</div><div class="stat-label">Renewing in 30 Days</div></div>
-        <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon">❌</div><div class="stat-value">18</div><div class="stat-label">Lapsed / Cancelled</div></div>
-        <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon">💰</div><div class="stat-value" style="font-size:18px">MK 2.4B</div><div class="stat-label">Total Premium Written (YTD)</div></div>
-      </div>
-
-      <div class="card mb-24">
-        <div class="card-body" style="padding:14px 20px">
-          <div class="filter-row">
-            <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Search policies…" id="policySearch"></div>
-            <select class="filter-select" id="policyStatusFilter" onchange="filterPolicies()">
-              <option value="">All Statuses</option>
-              <option>Active</option>
-              <option>Pending Issuance</option>
-              <option>Renewed</option>
-              <option>Lapsed</option>
-              <option>Cancelled</option>
-            </select>
-            <select class="filter-select" onchange="filterPolicies()">
-              <option value="">All Classes</option>
-              <option>Motor</option>
-              <option>Property</option>
-              <option>Life</option>
-              <option>Medical</option>
-              <option>Marine</option>
-              <option>Fire & General</option>
-            </select>
-            <select class="filter-select" onchange="filterPolicies()">
-              <option value="">All Branches</option>
-              <option>Blantyre HQ</option>
-              <option>Lilongwe Branch</option>
-              <option>Mzuzu Branch</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div><div class="card-title">Policy Register</div><div class="card-subtitle">Showing 15 of 1,042 records</div></div>
-          <div class="card-actions">
-            <div class="tabs" style="border:none;margin:0">
-              <div class="tab active" onclick="setPolicyTab(this,'')">All</div>
-              <div class="tab" onclick="setPolicyTab(this,'Active')">Active</div>
-              <div class="tab" onclick="setPolicyTab(this,'Pending Issuance')">Pending</div>
-              <div class="tab" onclick="setPolicyTab(this,'Lapsed')">Lapsed</div>
-            </div>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table id="policyTable">
-            <thead><tr>
-              <th data-sort>Policy No.</th>
-              <th data-sort>Policyholder</th>
-              <th data-sort>Class</th>
-              <th data-sort>Sum Insured (MWK)</th>
-              <th data-sort>Annual Premium (MWK)</th>
-              <th data-sort>Inception</th>
-              <th data-sort>Expiry</th>
-              <th data-sort>Branch</th>
-              <th data-sort>Status</th>
-              <th>Actions</th>
-            </tr></thead>
-            <tbody id="policyTbody"></tbody>
-          </table>
-        </div>
-        <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <span class="text-sm text-muted">Page 1 of 70</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-ghost btn-xs">‹ Prev</button>
-            <button class="btn btn-primary btn-xs">1</button>
-            <button class="btn btn-ghost btn-xs">2</button>
-            <button class="btn btn-ghost btn-xs">3</button>
-            <button class="btn btn-ghost btn-xs">Next ›</button>
-          </div>
-        </div>
-      </div>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.8rem;">
+    <div class="pill-row" style="margin:0;">
+      <span class="pill active" onclick="filterTable('')">All</span>
+      <span class="pill" onclick="filterTable('active')">Active</span>
+       <span class="pill" onclick="filterTable('pending')">Pending</span>
     </div>
+    <input type="text" id="searchBox" placeholder="🔍 Search..." style="width:220px;padding:.5rem .8rem;font-size:.85rem;">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Premium</th><th>Status</th><th>Start</th><th>End</th></tr></thead>
+      <tbody id="policiesTable"></tbody>
+    </table>
   </div>
 </div>
-
-<!-- NEW POLICY MODAL -->
-<div class="modal-overlay" id="newPolicyModal">
-  <div class="modal" style="max-width:660px">
-    <div class="modal-header">
-      <div class="modal-title">📄 Issue New Policy</div>
-      <button class="modal-close">✕</button>
-    </div>
-    <div class="modal-body">
-      <form class="ajax-form">
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Policyholder Name *</label><input type="text" class="form-control" placeholder="Full name or entity"></div>
-          <div class="form-group"><label class="form-label">National ID / Business Reg.</label><input type="text" class="form-control" placeholder="ID or registration number"></div>
-          <div class="form-group"><label class="form-label">Class of Business *</label>
-            <select class="form-control"><option>Motor</option><option>Property</option><option>Life</option><option>Medical</option><option>Marine</option><option>Fire &amp; General</option></select></div>
-          <div class="form-group"><label class="form-label">Branch *</label>
-            <select class="form-control"><option>Blantyre HQ</option><option>Lilongwe Branch</option><option>Mzuzu Branch</option></select></div>
-          <div class="form-group"><label class="form-label">Sum Insured (MWK) *</label><input type="number" class="form-control" placeholder="0.00"></div>
-          <div class="form-group"><label class="form-label">Annual Premium (MWK) *</label><input type="number" class="form-control" placeholder="0.00"></div>
-          <div class="form-group"><label class="form-label">Inception Date *</label><input type="date" class="form-control"></div>
-          <div class="form-group"><label class="form-label">Expiry Date *</label><input type="date" class="form-control"></div>
-          <div class="form-group"><label class="form-label">Policy Officer</label>
-            <select class="form-control"><option>Agnes Ndovi</option><option>Peter Mwale</option><option>Grace Kachingwe</option></select></div>
-          <div class="form-group"><label class="form-label">Payment Frequency</label>
-            <select class="form-control"><option>Annual</option><option>Semi-Annual</option><option>Quarterly</option><option>Monthly</option></select></div>
-        </div>
-        <div class="form-group"><label class="form-label">Special Conditions / Notes</label>
-          <textarea class="form-control" rows="2" placeholder="Any endorsements, exclusions, or special terms…"></textarea></div>
-        <div class="modal-footer" style="padding:0;border:none;margin-top:8px">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('newPolicyModal')">Cancel</button>
-          <button type="button" class="btn btn-outline" onclick="showToast('Quotation saved as draft.','success')">Save as Quote</button>
-          <button type="submit" class="btn btn-primary">Issue Policy</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
-
-<!-- VIEW POLICY MODAL -->
-<div class="modal-overlay" id="viewPolicyModal">
-  <div class="modal" style="max-width:680px">
-    <div class="modal-header">
-      <div class="modal-title" id="viewPolicyTitle">Policy Details</div>
-      <button class="modal-close">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="tabs">
-        <div class="tab active" onclick="switchPolicyTab(this,'pInfo')">Policy Details</div>
-        <div class="tab" onclick="switchPolicyTab(this,'pEndorsements')">Endorsements</div>
-        <div class="tab" onclick="switchPolicyTab(this,'pClaims')">Claims History</div>
-      </div>
-      <div id="pInfo"><div class="grid-2"><div class="info-row" id="pInfoLeft"></div><div class="info-row" id="pInfoRight"></div></div></div>
-      <div id="pEndorsements" style="display:none">
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-          <div style="padding:12px;background:var(--bg);border-radius:var(--radius)"><div class="flex-between"><span class="text-bold">END-001 — Fleet Extension</span><span class="badge badge-active">Active</span></div><div class="text-sm text-muted mt-4">Added 3 vehicles — Additional premium MK 180,000 • 10 Jan 2026</div></div>
-          <div style="padding:12px;background:var(--bg);border-radius:var(--radius)"><div class="flex-between"><span class="text-bold">END-002 — Address Change</span><span class="badge badge-active">Active</span></div><div class="text-sm text-muted mt-4">Registered address updated • No premium change • 15 Feb 2026</div></div>
-        </div>
-        <button class="btn btn-outline btn-sm mt-16" onclick="showToast('Endorsement form would open here.','info')">+ Add Endorsement</button>
-      </div>
-      <div id="pClaims" style="display:none">
-        <table style="margin-top:8px"><thead><tr><th>Claim No.</th><th>Date</th><th>Class</th><th>Settlement</th><th>Status</th></tr></thead>
-        <tbody><tr><td class="mono">CLM-2026-0138</td><td>18 Feb 2026</td><td>Property</td><td>MK 9,200,000</td><td><span class="badge badge-settled">Settled</span></td></tr>
-        <tr><td class="mono">CLM-2025-0892</td><td>10 Sep 2025</td><td>Property</td><td>MK 4,500,000</td><td><span class="badge badge-settled">Settled</span></td></tr></tbody></table>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('viewPolicyModal')">Close</button>
-      <button class="btn btn-outline" onclick="showToast('Endorsement form opened.','info')">Endorse</button>
-      <button class="btn btn-primary" onclick="showToast('Policy renewed successfully.','success')">Renew Policy</button>
-    </div>
-  </div>
 </div>
-
-<script src="js/app.js"></script>
-<script src="js/shared-nav.js"></script>
 <script>
-const policies = [
-  {id:'POL-2026-1042',holder:'Chisomo Trading Ltd',cls:'Motor',si:45000000,prem:2250000,inc:'01 Jan 2026',exp:'31 Dec 2026',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2026-1041',holder:'Ruth Gondwe',cls:'Medical',si:5000000,prem:450000,inc:'01 Jan 2026',exp:'31 Dec 2026',branch:'Lilongwe Branch',status:'Active'},
-  {id:'POL-2026-1040',holder:'Sunrise Logistics',cls:'Marine',si:250000000,prem:3750000,inc:'15 Jan 2026',exp:'14 Jan 2027',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2026-1039',holder:'Patrick Nyirenda',cls:'Property',si:30000000,prem:900000,inc:'01 Feb 2026',exp:'31 Jan 2027',branch:'Mzuzu Branch',status:'Pending Issuance'},
-  {id:'POL-2026-1038',holder:'Malawi Breweries',cls:'Fire & General',si:500000000,prem:6250000,inc:'01 Mar 2026',exp:'28 Feb 2027',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2025-0987',holder:'Alice Msowoya',cls:'Life',si:20000000,prem:1200000,inc:'01 Apr 2025',exp:'31 Mar 2026',branch:'Lilongwe Branch',status:'Lapsed'},
-  {id:'POL-2026-1037',holder:'Central Hospital',cls:'Medical',si:15000000,prem:1350000,inc:'01 Jan 2026',exp:'31 Dec 2026',branch:'Lilongwe Branch',status:'Active'},
-  {id:'POL-2026-1036',holder:'Kondwani Enterprises',cls:'Motor',si:8000000,prem:480000,inc:'15 Feb 2026',exp:'14 Feb 2027',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2026-1035',holder:'Green Valley Farm',cls:'Fire & General',si:120000000,prem:1800000,inc:'01 Jan 2026',exp:'31 Dec 2026',branch:'Mzuzu Branch',status:'Active'},
-  {id:'POL-2026-1034',holder:'Samuel Phiri',cls:'Motor',si:4000000,prem:240000,inc:'20 Feb 2026',exp:'19 Feb 2027',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2026-1033',holder:'Zambia Sunbird',cls:'Property',si:80000000,prem:2400000,inc:'01 Mar 2026',exp:'28 Feb 2027',branch:'Lilongwe Branch',status:'Active'},
-  {id:'POL-2026-1032',holder:'Diana Kalilombe',cls:'Medical',si:3000000,prem:270000,inc:'01 Feb 2026',exp:'31 Jan 2027',branch:'Blantyre HQ',status:'Renewed'},
-  {id:'POL-2026-1031',holder:'Peoples Trading',cls:'Marine',si:180000000,prem:2700000,inc:'01 Jan 2026',exp:'31 Dec 2026',branch:'Blantyre HQ',status:'Active'},
-  {id:'POL-2025-0965',holder:'John Kamwendo',cls:'Life',si:25000000,prem:1500000,inc:'01 Apr 2025',exp:'31 Mar 2026',branch:'Mzuzu Branch',status:'Lapsed'},
-  {id:'POL-2026-1030',holder:'Bright Futures School',cls:'Property',si:60000000,prem:1200000,inc:'01 Feb 2026',exp:'31 Jan 2027',branch:'Mzuzu Branch',status:'Active'},
-];
-
-const statusBadge = {Active:'badge-active','Pending Issuance':'badge-pending',Renewed:'badge-settled',Lapsed:'badge-lapsed',Cancelled:'badge-rejected'};
-
-function renderPolicies(data) {
-  document.getElementById('policyTbody').innerHTML = data.map(p => `
-    <tr>
-      <td class="mono"><a href="#" style="color:var(--blue);font-weight:600" onclick="viewPolicy('${p.id}');return false">${p.id}</a></td>
-      <td>${p.holder}</td>
-      <td><span class="tag">${p.cls}</span></td>
-      <td>MK ${p.si.toLocaleString()}</td>
-      <td>MK ${p.prem.toLocaleString()}</td>
-      <td>${p.inc}</td>
-      <td>${p.exp}</td>
-      <td>${p.branch.replace(' Branch','')}</td>
-      <td><span class="badge ${statusBadge[p.status]||'badge-info'}">${p.status}</span></td>
-      <td><div style="display:flex;gap:4px">
-        <button class="btn btn-ghost btn-xs" onclick="viewPolicy('${p.id}')">View</button>
-        <button class="btn btn-outline btn-xs" onclick="showToast('Renewal initiated for ${p.id}.','success')">Renew</button>
-      </div></td>
-    </tr>`).join('');
-  initTableSort();
+function filterTable(val){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('#policiesTable tr').forEach(r=>{
+    r.style.display = val===''||r.textContent.toLowerCase().includes(val) ? '' : 'none';
+  });
 }
-
-function viewPolicy(id) {
-  const p = policies.find(x=>x.id===id);
-  if (!p) return;
-  document.getElementById('viewPolicyTitle').textContent = '📄 ' + p.id + ' — ' + p.holder;
-  document.getElementById('pInfoLeft').innerHTML = [
-    ['Policy Number', p.id],['Policyholder', p.holder],['Class of Business', p.cls],
-    ['Inception Date', p.inc],['Expiry Date', p.exp],['Branch', p.branch]
-  ].map(([l,v])=>`<div class="info-item"><span class="info-label">${l}</span><span class="info-value">${v}</span></div>`).join('');
-  document.getElementById('pInfoRight').innerHTML = [
-    ['Sum Insured', 'MK '+p.si.toLocaleString()],['Annual Premium','MK '+p.prem.toLocaleString()],
-    ['Status',`<span class="badge ${statusBadge[p.status]||''}">${p.status}</span>`],
-    ['Payment Frequency','Annual'],['No. of Claims','2'],['Policy Officer','Agnes Ndovi']
-  ].map(([l,v])=>`<div class="info-item"><span class="info-label">${l}</span><span class="info-value">${v}</span></div>`).join('');
-  ['pInfo','pEndorsements','pClaims'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
-  document.querySelectorAll('#viewPolicyModal .tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('#viewPolicyModal .tab')[0].classList.add('active');
-  openModal('viewPolicyModal');
-}
-
-function switchPolicyTab(el, target) {
-  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  ['pInfo','pEndorsements','pClaims'].forEach(id=>document.getElementById(id).style.display=id===target?'block':'none');
-}
-
-function filterPolicies() {
-  const q = document.getElementById('policySearch').value.toLowerCase();
-  const s = document.getElementById('policyStatusFilter').value;
-  renderPolicies(policies.filter(p=>(p.id+p.holder+p.cls+p.branch).toLowerCase().includes(q)&&(!s||p.status===s)));
-}
-
-function setPolicyTab(el, status) {
-  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('policyStatusFilter').value = status;
-  filterPolicies();
-}
-
-document.getElementById('policySearch').addEventListener('input', filterPolicies);
-renderPolicies(policies);
+document.addEventListener('input',()=>{
+  const q=document.getElementById('searchBox').value.toLowerCase();
+  document.querySelectorAll('#policiesTable tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+});
 </script>
-</body>
-</html>
+<script src="js/data.js"></script><script src="js/app.js"></script></body></html>

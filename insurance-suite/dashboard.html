@@ -1,238 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — InsureSuite</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Dashboard | InsureSuite</title>
+  <link rel="stylesheet" href="css/style.css">
+  
 </head>
-<body>
-<div class="app-layout">
-  <div id="sidebar-mount"></div>
-  <div class="main-content">
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <div class="topbar-breadcrumb">
-        <span>InsureSuite</span><span class="sep">›</span>
-        <span class="crumb-current">Executive Dashboard</span>
+<body><div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">Insure<span>Suite</span></div>
+      <ul class="sidebar-nav">
+        <li class="nav-section">Main</li>
+        <li><a href="dashboard.html">🏠 Dashboard</a></li>
+        <li class="nav-section">Insurance</li>
+        <li><a href="policies.html">📋 Policies</a></li>
+        <li><a href="claims.html">🛡️ Claims</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="brokers.html">🤝 Brokers</a></li>
+        <li class="nav-section">Public</li>
+        <li><a href="quotes.html">💬 Get a Quote</a></li>
+        <li><a href="index.html">🌐 Public Site</a></li>
+        <li class="nav-section">Account</li>
+        <li><a href="#" class="logout-btn">🔓 Logout</a></li>
+      </ul>
+    </aside>
+<div class="main-content">
+
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button id="sideToggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">☰</button>
+        <span class="top-bar-title">Dashboard</span>
       </div>
-      <div class="topbar-actions">
-        <div class="branch-badge">🏢 <span id="topbar-branch">Blantyre HQ</span></div>
-        <div class="topbar-divider"></div>
-        <div class="icon-btn" title="Notifications" onclick="showToast('5 items need your attention.','info')">🔔<div class="notif-dot"></div></div>
-        <div class="icon-btn" title="Export Report" onclick="showToast('Report export queued.','success')">📥</div>
-        <button class="topbar-btn" onclick="location.reload()">↻ Refresh</button>
+      <div class="user-chip">
+        <div class="avatar">TI</div>
+        <span style="font-size:.85rem;color:#6b7c93;">Tafika Itaye &nbsp;|&nbsp; Admin</span>
+        <a href="#" class="logout-btn" style="font-size:.8rem;color:#e63946;margin-left:.5rem;">Logout</a>
       </div>
     </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-value" id="totalPolicies">–</div><div class="metric-label">Total Policies</div><div class="metric-change up">↑ 12% this month</div></div>
+    <div class="metric"><div class="metric-value" id="activePolicies">–</div><div class="metric-label">Active Policies</div><div class="metric-change up">↑ 8%</div></div>
+    <div class="metric"><div class="metric-value" id="pendingClaims">–</div><div class="metric-label">Pending Claims</div><div class="metric-change down">↓ Review needed</div></div>
+    <div class="metric"><div class="metric-value" id="totalCustomers">–</div><div class="metric-label">Customers</div><div class="metric-change up">↑ 5 new</div></div>
+    <div class="metric"><div class="metric-value">MK 612K</div><div class="metric-label">Premiums This Month</div><div class="metric-change up">↑ 18%</div></div>
+  </div>
 
-    <div class="page-body">
-      <div class="page-title-row">
-        <div>
-          <div class="page-title">Executive Dashboard</div>
-          <div class="page-subtitle" id="dash-date">Loading date…</div>
-        </div>
-        <div class="page-actions">
-          <select class="filter-select" onchange="showToast('Period updated.','success')">
-            <option>This Month</option>
-            <option>Last Month</option>
-            <option>This Quarter</option>
-            <option>This Year</option>
-          </select>
-          <select class="filter-select" onchange="showToast('Branch filter applied.','success')">
-            <option>All Branches</option>
-            <option>Blantyre HQ</option>
-            <option>Lilongwe Branch</option>
-            <option>Mzuzu Branch</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- KPI CARDS -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-accent blue"></div>
-          <div class="stat-icon">📋</div>
-          <div class="stat-value">148</div>
-          <div class="stat-label">Active Claims</div>
-          <div class="stat-delta up">▲ 12 new this month</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent green"></div>
-          <div class="stat-icon">📄</div>
-          <div class="stat-value">1,042</div>
-          <div class="stat-label">Active Policies</div>
-          <div class="stat-delta up">▲ 38 issued this month</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent orange"></div>
-          <div class="stat-icon">💰</div>
-          <div class="stat-value" style="font-size:19px">MK 2.4B</div>
-          <div class="stat-label">Premium Written (YTD)</div>
-          <div class="stat-delta up">▲ 8.3% vs prior year</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent red"></div>
-          <div class="stat-icon">⏳</div>
-          <div class="stat-value">23</div>
-          <div class="stat-label">Pending Approvals</div>
-          <div class="stat-delta down">▼ 5 overdue &gt;48 hrs</div>
-        </div>
-      </div>
-
-      <!-- SECOND ROW KPIs -->
-      <div class="stats-grid mb-24" style="grid-template-columns:repeat(4,1fr)">
-        <div class="stat-card">
-          <div class="stat-accent teal"></div>
-          <div class="stat-icon">🔄</div>
-          <div class="stat-value">17</div>
-          <div class="stat-label">Portfolio Transfers (MTD)</div>
-          <div class="stat-delta" style="color:var(--text-muted)">3 awaiting confirmation</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent green"></div>
-          <div class="stat-icon">✅</div>
-          <div class="stat-value">94</div>
-          <div class="stat-label">Claims Closed (MTD)</div>
-          <div class="stat-delta up">▲ Avg. 6.2 days to close</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent orange"></div>
-          <div class="stat-icon">🔔</div>
-          <div class="stat-value">64</div>
-          <div class="stat-label">Renewals Due (30 days)</div>
-          <div class="stat-delta down">▼ 11 at risk of lapse</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-accent blue"></div>
-          <div class="stat-icon">🗂️</div>
-          <div class="stat-value">3,218</div>
-          <div class="stat-label">Documents on Record</div>
-          <div class="stat-delta" style="color:var(--text-muted)">47 uploaded this week</div>
-        </div>
-      </div>
-
-      <!-- CHARTS ROW -->
-      <div class="grid-3-1 mb-24">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Premium Written — Monthly (MWK)</div>
-              <div class="card-subtitle">Current financial year</div>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-ghost btn-xs" onclick="showToast('Data exported.','success')">Export</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <canvas id="premiumChart" width="620" height="220"></canvas>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Claims by Status</div>
-          </div>
-          <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:16px">
-            <canvas id="claimsDonut" width="160" height="160"></canvas>
-            <div style="width:100%;display:flex;flex-direction:column;gap:6px">
-              <div class="flex-between text-sm"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#0078D4"></span>Open</span><strong>72</strong></div>
-              <div class="flex-between text-sm"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E67E22"></span>Under Review</span><strong>41</strong></div>
-              <div class="flex-between text-sm"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#107C10"></span>Settled</span><strong>94</strong></div>
-              <div class="flex-between text-sm"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#A4262C"></span>Rejected</span><strong>19</strong></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOTTOM ROW -->
-      <div class="grid-3-1">
-        <!-- RECENT ACTIVITY -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Recent Activity</div>
-              <div class="card-subtitle">System-wide — last 24 hours</div>
-            </div>
-            <a href="audit.html" class="btn btn-ghost btn-xs">View All</a>
-          </div>
-          <div class="card-body">
-            <div class="activity-list">
-              <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Claim <strong>CLM-2026-0148</strong> opened by Grace Kachingwe</div><div class="activity-meta">Motor — Fire &amp; General • 2 mins ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text">Policy <strong>POL-2026-1042</strong> renewed successfully</div><div class="activity-meta">Life — Lilongwe Branch • 18 mins ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot orange"></div><div><div class="activity-text">Portfolio transfer <strong>PT-2026-017</strong> awaiting confirmation</div><div class="activity-meta">Peter Mwale → Agnes Ndovi • 45 mins ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot red"></div><div><div class="activity-text">Claim <strong>CLM-2026-0134</strong> overdue — no assessor assigned</div><div class="activity-meta">Property — Mzuzu Branch • 2 hrs ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot blue"></div><div><div class="activity-text">Document uploaded: <strong>Assessment Report Q1</strong></div><div class="activity-meta">Claims — Blantyre HQ • 3 hrs ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot green"></div><div><div class="activity-text">Claim <strong>CLM-2026-0129</strong> settled — MK 4,320,000</div><div class="activity-meta">Motor — Blantyre HQ • 5 hrs ago</div></div></div>
-              <div class="activity-item"><div class="activity-dot orange"></div><div><div class="activity-text">11 renewal reminders sent via system</div><div class="activity-meta">CRM Engine — All Branches • 6 hrs ago</div></div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- QUICK STATS -->
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="card">
-            <div class="card-header"><div class="card-title">SLA Performance</div></div>
-            <div class="card-body">
-              <div style="display:flex;flex-direction:column;gap:12px">
-                <div>
-                  <div class="flex-between text-sm mb-16" style="margin-bottom:4px"><span>Claims — Avg. Resolution</span><span class="text-bold">6.2 days</span></div>
-                  <div class="progress-bar"><div class="progress-fill green" style="width:78%"></div></div>
-                  <div class="text-sm text-muted mt-4">SLA target: 8 days — 78% within target</div>
-                </div>
-                <div>
-                  <div class="flex-between text-sm mb-16" style="margin-bottom:4px"><span>Policy Issuance</span><span class="text-bold">1.4 days</span></div>
-                  <div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div>
-                  <div class="text-sm text-muted mt-4">SLA target: 2 days — 91% within target</div>
-                </div>
-                <div>
-                  <div class="flex-between text-sm mb-16" style="margin-bottom:4px"><span>Document Filing</span><span class="text-bold">0.8 days</span></div>
-                  <div class="progress-bar"><div class="progress-fill green" style="width:95%"></div></div>
-                  <div class="text-sm text-muted mt-4">SLA target: 1 day — 95% within target</div>
-                </div>
-                <div>
-                  <div class="flex-between text-sm mb-16" style="margin-bottom:4px"><span>Approvals — Overdue</span><span class="text-bold">5 items</span></div>
-                  <div class="progress-bar"><div class="progress-fill red" style="width:22%"></div></div>
-                  <div class="text-sm text-muted mt-4" style="color:var(--danger)">⚠ Action required</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header"><div class="card-title">Pending Approvals</div></div>
-            <div class="card-body">
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <div class="flex-between"><span class="text-sm">Claim settlements</span><span class="badge badge-pending">8</span></div>
-                <div class="flex-between"><span class="text-sm">Portfolio transfers</span><span class="badge badge-pending">3</span></div>
-                <div class="flex-between"><span class="text-sm">Policy endorsements</span><span class="badge badge-info">7</span></div>
-                <div class="flex-between"><span class="text-sm">New policy issuance</span><span class="badge badge-info">5</span></div>
-                <div class="divider"></div>
-                <button class="btn btn-primary btn-sm w-full" onclick="location.href='audit.html'">Review All Approvals</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div><!-- /page-body -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;">
+    <div class="card"><h3 style="margin-bottom:1rem;">Recent Policies</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody id="policiesTable"></tbody>
+      </table></div>
+      <a href="policies.html" style="display:block;margin-top:1rem;font-size:.85rem;">View all →</a>
+    </div>
+    <div class="card"><h3 style="margin-bottom:1rem;">Recent Claims</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="claimsTable"></tbody>
+      </table></div>
+      <a href="claims.html" style="display:block;margin-top:1rem;font-size:.85rem;">View all →</a>
+    </div>
   </div>
 </div>
-
-<script src="js/app.js"></script>
-<script src="js/shared-nav.js"></script>
-<script>
-document.getElementById('dash-date').textContent = 'As of ' + new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-
-window.addEventListener('load', () => {
-  drawBarChart('premiumChart',
-    ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-    [180e6,195e6,210e6,188e6,225e6,242e6,198e6,260e6,245e6,278e6,290e6,310e6]
-  );
-  drawDonutChart('claimsDonut',
-    ['Open','Review','Settled','Rejected'],
-    [72,41,94,19],
-    ['#0078D4','#E67E22','#107C10','#A4262C']
-  );
-});
-</script>
-</body>
-</html>
+</div>
+<script src="js/data.js"></script><script src="js/app.js"></script></body></html>
