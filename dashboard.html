@@ -1,162 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InsureSuite – Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Dashboard | InsureSuite</title>
+  <link rel="stylesheet" href="css/style.css">
+  
 </head>
-<body class="dashboard-page">
+<body><div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">Insure<span>Suite</span></div>
+      <ul class="sidebar-nav">
+        <li class="nav-section">Main</li>
+        <li><a href="dashboard.html">🏠 Dashboard</a></li>
+        <li class="nav-section">Insurance</li>
+        <li><a href="policies.html">📋 Policies</a></li>
+        <li><a href="claims.html">🛡️ Claims</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="brokers.html">🤝 Brokers</a></li>
+        <li class="nav-section">Public</li>
+        <li><a href="quotes.html">💬 Get a Quote</a></li>
+        <li><a href="index.html">🌐 Public Site</a></li>
+        <li class="nav-section">Account</li>
+        <li><a href="#" class="logout-btn">🔓 Logout</a></li>
+      </ul>
+    </aside>
+<div class="main-content">
 
-  <header class="suite-header">
-    <h1>InsureSuite</h1>
-    <div class="user-nav">
-      <span id="sessionInfo"></span> •
-      <a href="index.html">Logout</a>
-    </div>
-  </header>
-
-  <nav class="main-menu">
-    <a href="dashboard.html" class="menu-item active">Dashboard</a>
-    <a href="claims.html" class="menu-item">Claims</a>
-    <a href="policies.html" class="menu-item">Policies</a>
-    <a href="crm.html" class="menu-item">CRM & Renewals</a>
-    <a href="portfolio.html" class="menu-item">Portfolio</a>
-    <a href="documents.html" class="menu-item">Documents</a>
-    <a href="admin.html" class="menu-item">Admin</a>
-  </nav>
-
-  <main class="page-main">
-
-    <div class="kpi-grid">
-      <div class="kpi-card orange"><h3>Open Claims</h3><div class="kpi-value" id="kpiOpenClaims">-</div></div>
-      <div class="kpi-card green"><h3>Active Policies</h3><div class="kpi-value" id="kpiActivePolicies">-</div></div>
-      <div class="kpi-card red"><h3>Pending Approvals</h3><div class="kpi-value" id="kpiPendingApprovals">-</div></div>
-      <div class="kpi-card blue"><h3>Renewals Due</h3><div class="kpi-value" id="kpiRenewalsDue30">-</div></div>
-      <div class="kpi-card yellow"><h3>SLA Breaches</h3><div class="kpi-value" id="kpiSLABreaches">-</div></div>
-      <div class="kpi-card purple"><h3>Pending Transfers</h3><div class="kpi-value" id="kpiPendingTransfers">-</div></div>
-    </div>
-
-    <div class="chart-row">
-      <div class="chart-card">
-        <h4>Claims Status</h4>
-        <canvas id="claimsChart"></canvas>
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button id="sideToggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">☰</button>
+        <span class="top-bar-title">Dashboard</span>
       </div>
-      <div class="chart-card">
-        <h4>Policies by Class</h4>
-        <canvas id="policiesChart"></canvas>
+      <div class="user-chip">
+        <div class="avatar">TI</div>
+        <span style="font-size:.85rem;color:#6b7c93;">Tafika Itaye &nbsp;|&nbsp; Admin</span>
+        <a href="#" class="logout-btn" style="font-size:.8rem;color:#e63946;margin-left:.5rem;">Logout</a>
       </div>
     </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-value" id="totalPolicies">–</div><div class="metric-label">Total Policies</div><div class="metric-change up">↑ 12% this month</div></div>
+    <div class="metric"><div class="metric-value" id="activePolicies">–</div><div class="metric-label">Active Policies</div><div class="metric-change up">↑ 8%</div></div>
+    <div class="metric"><div class="metric-value" id="pendingClaims">–</div><div class="metric-label">Pending Claims</div><div class="metric-change down">↓ Review needed</div></div>
+    <div class="metric"><div class="metric-value" id="totalCustomers">–</div><div class="metric-label">Customers</div><div class="metric-change up">↑ 5 new</div></div>
+    <div class="metric"><div class="metric-value">MK 612K</div><div class="metric-label">Premiums This Month</div><div class="metric-change up">↑ 18%</div></div>
+  </div>
 
-  </main>
-
-  <script>
-        // DUMMY DATA FOR DASHBOARD
-    window.data = {
-      claims: [
-        { status: "Registered" },
-        { status: "Assessing" },
-        { status: "Approved" },
-        { status: "Closed" },
-        { status: "Registered" }
-      ],
-      policies: [
-        { class: "Motor", status: "Active" },
-        { class: "Fire",  status: "Active" },
-        { class: "Motor", status: "Lapsed" },
-        { class: "Motor", status: "Active" },
-        { class: "Fire",  status: "Active" }
-      ],
-      openClaims: 3,
-      pendingApprovals: 5,
-      renewalsDue30Days: 12,
-      slaBreaches: 2,
-      pendingTransfers: 3
-    };
-
-    // APP LOGIC
-    const app = {
-      session: null,
-
-      // Load stored session
-      loadSession() {
-        try {
-          const s = localStorage.getItem("insuresuite-session");
-          if (s) this.session = JSON.parse(s);
-        } catch (e) {
-          // ignore invalid JSON
-        }
-      },
-
-      // Require valid session to show page
-      requireSession() {
-        if (!this.session) {
-          window.location = "index.html";
-          return false;
-        }
-        return true;
-      },
-
-      // Set role + branch in header
-      setHeader() {
-        const el = document.getElementById("sessionInfo");
-        if (!el || !this.session) return;
-        el.textContent = this.session.role;
-      },
-
-      // Load KPI counts
-      loadKpis() {
-        const d = window.data;
-        document.getElementById("kpiOpenClaims").textContent      = d.openClaims;
-        document.getElementById("kpiActivePolicies").textContent  = d.policies.filter(p => p.status === "Active").length;
-        document.getElementById("kpiPendingApprovals").textContent = d.pendingApprovals;
-        document.getElementById("kpiRenewalsDue30").textContent    = d.renewalsDue30Days;
-        document.getElementById("kpiSLABreaches").textContent      = d.slaBreaches;
-        document.getElementById("kpiPendingTransfers").textContent = d.pendingTransfers;
-      },
-
-      // Load charts
-      loadCharts() {
-        // Claims status pie chart
-        const claimCounts = window.data.claims.reduce((acc, c) => {
-          acc[c.status] = (acc[c.status] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("claimsChart").getContext("2d"), {
-          type: "pie",
-          data: {
-            labels: Object.keys(claimCounts),
-            datasets: [{ data: Object.values(claimCounts), backgroundColor: ["#003366","#007bff","#28a745","#6c757d"] }]
-          }
-        });
-
-        // Policies by class bar chart
-        const policyCounts = window.data.policies.reduce((acc, p) => {
-          acc[p.class] = (acc[p.class] || 0) + 1;
-          return acc;
-        }, {});
-        new Chart(document.getElementById("policiesChart").getContext("2d"), {
-          type: "bar",
-          data: {
-            labels: Object.keys(policyCounts),
-            datasets: [{ label: "Policies", data: Object.values(policyCounts), backgroundColor: "#003366" }]
-          }
-        });
-      },
-
-      // Initialize page
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;
-        this.setHeader();
-        this.loadKpis();
-        this.loadCharts();
-      }
-    };
-
-    // Run on page load
-    document.addEventListener("DOMContentLoaded", () => app.init());
-  </script>
-</body>
-</html>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap;">
+    <div class="card"><h3 style="margin-bottom:1rem;">Recent Policies</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody id="policiesTable"></tbody>
+      </table></div>
+      <a href="policies.html" style="display:block;margin-top:1rem;font-size:.85rem;">View all →</a>
+    </div>
+    <div class="card"><h3 style="margin-bottom:1rem;">Recent Claims</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="claimsTable"></tbody>
+      </table></div>
+      <a href="claims.html" style="display:block;margin-top:1rem;font-size:.85rem;">View all →</a>
+    </div>
+  </div>
+</div>
+</div>
+<script src="js/data.js"></script><script src="js/app.js"></script></body></html>

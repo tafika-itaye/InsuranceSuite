@@ -1,16 +1,28 @@
-# InsureSuite — TechNexus Malawi
-### Mid-Tier Insurance Operations Suite — Prototype v1.0
+# InsureSuite
+Premium Insurance ERP & Commercial Website — GitHub Pages deployment.
 
-> Developed by **TechNexus Malawi** | BRN.A6SNWQY | MANePS Active | PPDA Registered  
-> +265 889 941 700 | technexus_mw@proton.me | www.technexusmw.com | Blantyre, Malawi
+## Live Site
+https://tafika-itaye.github.io/InsureSuite/
 
----
+## Structure
+- `index.html` — Public landing page
+- `login.html` — ERP login (demo credentials shown on screen)
+- `dashboard.html` — ERP home dashboard
+- `policies.html` — Policy management
+- `claims.html` — Claims management
+- `customers.html` — Customer CRM
+- `brokers.html` — Broker management
+- `quotes.html` — Public quote request form
+- `css/style.css` — Global stylesheet
+- `js/app.js` — UI interactions & routing
+- `js/data.js` — Demo JSON datasets
 
-## ⚙️ No Build Step Required
+## Demo Credentials
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@insuresuite.mw | Admin@2026 |
+| Broker | broker@insuresuite.mw | Broker@2026 |
+| Customer | customer@insuresuite.mw | Customer@2026 |
 
-Pure HTML5, CSS3, and vanilla JavaScript. No npm, no Node.js, no frameworks.  
-Open directly in any modern browser or deploy to any static host.
-
----
-
-*© 2026 TechNexus Malawi. All rights reserved. Prototype for presentation purposes only.*
+## Deploy
+Push to `main` branch → GitHub Pages serves from root.

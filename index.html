@@ -1,347 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InsureSuite – Login</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body class="auth-page">
-
-  <!-- SPLASH SCREEN LAYER -->
-  <div id="splashScreen" class="splash">
-    <div class="splash-logo">InsureSuite</div>
-    <div class="splash-tag">Mid‑Tier Insurance Operations Suite – TechNexus Malawi</div>
-    <button id="splashContinueBtn" class="btn btn-primary">Continue</button>
-  </div>
-
-  <!-- LOGIN LAYER (hidden until splash ends) -->
-  <div id="mainContent" style="display:none;">
-    <div class="login-container">
-      <header>
-        <h1>InsureSuite</h1>
-        <p>Mid‑Tier Insurance Operations Suite</p>
-      </header>
-
-      <form id="loginForm" class="login-form">
-        <h2>Select User Role</h2>
-
-        <div class="form-group">
-          <label for="branchSelect">Branch</label>
-          <select id="branchSelect" required>
-            <!-- filled by JS -->
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="roleSelect">Role</label>
-          <select id="roleSelect" required>
-            <option value="">-- Select Role --</option>
-            <option value="SuperAdmin">Super Admin</option>
-            <option value="BranchManager">Branch Manager</option>
-            <option value="Underwriter">Underwriter</option>
-            <option value="ClaimsHandler">Claims Handler</option>
-            <option value="FrontDesk">Front Desk</option>
-            <option value="ReadOnly">Read‑Only</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Start Session</button>
-
-        <div class="dashboard-link">
-          Already logged in? <a href="dashboard.html">Go straight to Dashboard</a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // === DUMMY DATA ===
-    window.data = {
-      branches: [
-        { id: 1, name: "Head Office – Blantyre", code: "BO" },
-        { id: 2, name: "Lilongwe Branch", code: "LW" },
-        { id: 3, name: "Mzuzu Branch", code: "MZ" }
-      ],
-      users: [
-        { id: 1, name: "Chris Kanyuka Jr", role: "SuperAdmin",  branch: 1 },
-        { id: 2, name: "Jane Moyo",         role: "BranchManager", branch: 2 },
-        { id: 3, name: "Tom Chilima",       role: "Underwriter",  branch: 1 },
-        { id: 4, name: "Grace Banda",       role: "ClaimsHandler", branch: 1 },
-        { id: 5, name: "Paul Mwale",        role: "FrontDesk",    branch: 3 },
-        { id: 6, name: "Linda Phiri",       role: "ReadOnly",     branch: 2 }
-      ]
-    };
-
-    // === APP LOGIC ===
-    const app = {
-      loadBranchDropdown() {
-        const sel = document.getElementById("branchSelect");
-        if (!sel || !window.data || !window.data.branches) return;
-
-        window.data.branches.forEach(br => {
-          const opt = document.createElement("option");
-          opt.value = br.id;
-          opt.textContent = br.name;
-          sel.appendChild(opt);
-        });
-
-        if (sel.options.length > 0) sel.selectedIndex = 0;
-      },
-
-      initLogin() {
-        const form = document.getElementById("loginForm");
-        if (!form) return;
-
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const branchSelect = document.getElementById("branchSelect");
-          const roleSelect   = document.getElementById("roleSelect");
-
-          const branchId = parseInt(branchSelect.value);
-          const role     = roleSelect.value;
-
-          if (!branchId || !role) {
-            alert("Select branch and role.");
-            return;
-          }
-
-          const user = window.data.users.find(u => u.role === role && u.branch === branchId);
-          if (!user) {
-            alert("No matching user for that role and branch.");
-            return;
-          }
-
-          const sess = { branchId, role, userId: user.id };
-          localStorage.setItem("insuresuite-session", JSON.stringify(sess));
-          window.location = "dashboard.html";
-        });
-      },
-
-      initSplash() {
-        const splash  = document.getElementById("splashScreen");
-        const main    = document.getElementById("mainContent");
-        splash.style.display = "flex";
-        main.style.disp
-    .form-group label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: 500;
-      color: #003366;
-    }
-
-    select,
-    input,
-    button {
-      width: 100%;
-      padding: 0.6rem 0.75rem;
-      border: 1px solid #d1d7e0;
-      border-radius: 0.25rem;
-      font-size: 0.95rem;
-      color: #212529;
-    }
-
-    select:focus,
-    input:focus {
-      outline: none;
-      border-color: #007bff;
-    }
-
-    .btn-primary {
-      background: #007bff;
-      color: #fff;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #0069d9;
-    }
-
-    /* Dashboard link */
-    .dashboard-link {
-      margin-top: 1.5rem;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .dashboard-link a {
-      color: #003366;
-      text-decoration: underline;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Home | InsureSuite</title>
+  <link rel="stylesheet" href="css/style.css">
+  
 </head>
 <body>
+<nav class="nav">
+  <div class="nav-brand">Insure<span>Suite</span></div>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#brokers">Brokers</a></li>
+    <li><a href="quotes.html">Get a Quote</a></li>
+    <li><a href="login.html" class="nav-cta">Login</a></li>
+  </ul>
+  <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
 
-  <!-- Splash Screen -->
-  <div id="splashScreen" class="splash">
-    <div class="splash-logo">
-      InsureSuite
-    </div>
-    <div class="splash-tag">
-      Mid‑Tier Insurance Operations Suite – TechNexus Malawi
-    </div>
-    <button id="splashContinueBtn" class="splash-btn">
-      Continue
-    </button>
+<section class="hero">
+  <div class="hero-badge">🇲🇼 Malawi's Premier Insurance Platform</div>
+  <h1>Protect What <span>Matters Most</span><br>With InsureSuite</h1>
+  <p>Comprehensive insurance solutions for individuals, families, and businesses across Malawi — backed by a world-class digital platform.</p>
+  <a href="quotes.html" class="btn btn-primary">Get a Free Quote</a>
+  <a href="login.html" class="btn btn-outline">Access ERP Portal</a>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">4,200+</div><div class="stat-label">Policies Active</div></div>
+    <div class="stat"><div class="stat-num">MK 2.8B</div><div class="stat-label">Claims Paid</div></div>
+    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Renewal Rate</div></div>
+    <div class="stat"><div class="stat-num">32</div><div class="stat-label">Broker Partners</div></div>
   </div>
+</section>
 
-  <!-- Main login content -->
-  <div id="mainContent" class="app-content" style="display:none;">
-    <div class="login-container">
-      <header>
-        <h1>InsureSuite</h1>
-        <p>Mid‑Tier Insurance Operations Suite</p>
-      </header>
+<section id="products">
+  <div class="section-title">
+    <h2>Insurance Products</h2>
+    <p>Tailored coverage for every stage of life and business</p>
+  </div>
+  <div class="grid-3">
+    <div class="card"><div class="card-icon">🚗</div><h3>Motor Insurance</h3><p>Comprehensive & third-party cover for all vehicles. Fast claims processing within 72 hours.</p></div>
+    <div class="card"><div class="card-icon">🏥</div><h3>Health Insurance</h3><p>Individual and group medical cover — inpatient, outpatient, and dental benefits.</p></div>
+    <div class="card"><div class="card-icon">🏠</div><h3>Property Insurance</h3><p>Home and commercial property cover against fire, theft, flood, and natural disasters.</p></div>
+    <div class="card"><div class="card-icon">❤️</div><h3>Life Insurance</h3><p>Term, whole life, and endowment plans. Secure your family's future starting from MK 3,500/month.</p></div>
+    <div class="card"><div class="card-icon">✈️</div><h3>Travel Insurance</h3><p>Regional and international travel cover including medical evacuation and trip cancellation.</p></div>
+    <div class="card"><div class="card-icon">🏢</div><h3>Business Insurance</h3><p>Group schemes, directors & officers liability, and professional indemnity for enterprises.</p></div>
+  </div>
+</section>
 
-      <form id="loginForm" class="login-form">
-        <h2>Select User Role</h2>
-
-        <div class="form-group">
-          <label for="branchSelect">Branch</label>
-          <select id="branchSelect" required>
-            <!-- JS will fill options -->
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="roleSelect">Role</label>
-          <select id="roleSelect" required>
-            <option value="">-- Select Role --</option>
-            <option value="SuperAdmin">Super Admin</option>
-            <option value="BranchManager">Branch Manager</option>
-            <option value="Underwriter">Underwriter</option>
-            <option value="ClaimsHandler">Claims Handler</option>
-            <option value="FrontDesk">Front Desk</option>
-            <option value="ReadOnly">Read‑Only</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Start Session</button>
-
-        <div class="dashboard-link">
-          Already logged in? <a href="dashboard.html">Go straight to Dashboard</a>
-        </div>
-      </form>
+<section id="features" style="background:var(--primary);">
+  <div class="section-title">
+    <h2 style="color:#fff;">Why Choose InsureSuite?</h2>
+    <p style="color:rgba(255,255,255,.6);">Industry-leading technology meets local expertise</p>
+  </div>
+  <div class="grid-4">
+    <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);">
+      <div class="card-icon">⚡</div><h3 style="color:#fff;">Real-Time Dashboard</h3>
+      <p style="color:rgba(255,255,255,.6);">Live metrics on policies, claims, and renewals — all in one place.</p>
+    </div>
+    <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);">
+      <div class="card-icon">📱</div><h3 style="color:#fff;">Mobile First</h3>
+      <p style="color:rgba(255,255,255,.6);">Full ERP access on any device — phone, tablet, or desktop.</p>
+    </div>
+    <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);">
+      <div class="card-icon">🔒</div><h3 style="color:#fff;">Secure & Compliant</h3>
+      <p style="color:rgba(255,255,255,.6);">Role-based access, audit trails, and IAIS-compliant reporting.</p>
+    </div>
+    <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);">
+      <div class="card-icon">🤝</div><h3 style="color:#fff;">Broker Portal</h3>
+      <p style="color:rgba(255,255,255,.6);">Dedicated broker commissions, pipeline tracking, and renewals.</p>
     </div>
   </div>
+</section>
 
-  <!-- Dummy data -->
-  <script>
-    window.data = {
-      branches: [
-        { id: 1, name: "Head Office – Blantyre", code: "BO" },
-        { id: 2, name: "Lilongwe Branch",        code: "LW" },
-        { id: 3, name: "Mzuzu Branch",           code: "MZ" },
-      ],
-      users: [
-        { id: 1, name: "Chris Kanyuka Jr", role: "SuperAdmin",  branch: 1 },
-        { id: 2, name: "Jane Moyo",         role: "BranchManager", branch: 2 },
-        { id: 3, name: "Tom Chilima",       role: "Underwriter",  branch: 1 },
-        { id: 4, name: "Grace Banda",       role: "ClaimsHandler", branch: 1 },
-        { id: 5, name: "Paul Mwale",        role: "FrontDesk",    branch: 3 },
-        { id: 6, name: "Linda Phiri",       role: "ReadOnly",     branch: 2 },
-      ],
-      policies: [
-        { id: 101, policyNo: "POL-2025-001", class: "Motor", branch: 1, status: "Active", customer: "Nyasa Insurance Agency" },
-        { id: 102, policyNo: "POL-2025-002", class: "Fire",  branch: 2, status: "Active", customer: "City Mall Ltd" },
-        { id: 103, policyNo: "POL-2025-003", class: "Motor", branch: 1, status: "Lapsed",  customer: "AutoPlus Ltd" },
-        { id: 104, policyNo: "POL-2025-004", class: "Motor", branch: 3, status: "Active",  customer: "Rural Transport Co‑op" },
-        { id: 105, policyNo: "POL-2025-005", class: "Fire",  branch: 2, status: "Active",  customer: "GreenGrocers Ltd" },
-      ],
-      claims: [
-        { id: 201, claimNo: "CLM-2025-001", policy: 101, lossDate: "2025-03-15", status: "Registered" },
-        { id: 202, claimNo: "CLM-2025-002", policy: 102, lossDate: "2025-03-20", status: "Assessing" },
-        { id: 203, claimNo: "CLM-2025-003", policy: 104, lossDate: "2025-03-25", status: "Approved" },
-        { id: 204, claimNo: "CLM-2025-004", policy: 105, lossDate: "2025-03-28", status: "Closed" },
-        { id: 205, claimNo: "CLM-2025-005", policy: 101, lossDate: "2025-04-01", status: "Registered" },
-      ],
-      pendingApprovals: 5,
-      renewalsDue30Days: 12,
-      slaBreaches: 2,
-      pendingTransfers: 3,
-      openClaims: 3,
-    };
-  </script>
+<section id="brokers">
+  <div class="section-title"><h2>Become a Broker Partner</h2><p>Join Malawi's fastest growing insurance distribution network</p></div>
+  <div style="max-width:700px;margin:0 auto;text-align:center;">
+    <p style="font-size:1.05rem;color:#6b7c93;margin-bottom:2rem;">Earn competitive commissions, access our full product suite, and manage your entire book of business through the InsureSuite broker portal.</p>
+    <a href="quotes.html" class="btn btn-primary">Partner With Us</a>
+  </div>
+</section>
 
-  <!-- App logic -->
-  <script>
-    const app = {
-      init: function () {
-        this.loadBranchDropdown();
-        this.initLogin();
-      },
-
-      loadBranchDropdown: function () {
-        const sel = document.getElementById("branchSelect");
-        const data = window.data;
-
-        if (!sel || !data || !data.branches) return;
-
-        data.branches.forEach(br => {
-          const opt = document.createElement("option");
-          opt.value = br.id;
-          opt.textContent = br.name;
-          sel.appendChild(opt);
-        });
-
-        if (sel.options.length > 0) {
-          sel.selectedIndex = 0;
-        }
-      },
-
-      initLogin: function () {
-        const form = document.getElementById("loginForm");
-        if (!form) return;
-
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-
-          const branchSelect = document.getElementById("branchSelect");
-          const roleSelect   = document.getElementById("roleSelect");
-
-          const branchId = parseInt(branchSelect.value);
-          const role     = roleSelect.value;
-
-          if (!branchId || !role) {
-            alert("Please select both branch and role.");
-            return;
-          }
-
-          const user = window.data.users.find(u => u.role === role && u.branch === branchId);
-          if (!user) {
-            alert("No user found for this role and branch.");
-            return;
-          }
-
-          const sess = {
-            branchId: branchId,
-            role: role,
-            userId: user.id,
-            timestamp: Date.now()
-          };
-          localStorage.setItem("insuresuite-session", JSON.stringify(sess));
-
-          window.location = "dashboard.html";
-        });
-      }
-    };
-
-    // Run when the DOM is ready
-    document.addEventListener("DOMContentLoaded", () => {
-      const splash  = document.getElementById("splashScreen");
-      const btn     = document.getElementById("splashContinueBtn");
-
-      btn.addEventListener("click", () => {
-        splash.style.display = "none";
-        document.getElementById("mainContent").style.display = "block";
-      });
-
-      // Auto‑hide splash after 3 seconds
-      setTimeout(() => {
-        splash.style.display = "none";
-        document.getElementById("mainContent").style.display = "block";
-      }, 3000);
-    });
-  </script>
-</body>
-</html>
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>Insure<span>Suite</span></h3>
+      <p>Digital insurance solutions built for Malawi and the region.</p>
+    </div>
+    <div class="footer-links"><h4>Products</h4><ul>
+      <li><a href="#">Motor</a></li><li><a href="#">Health</a></li>
+      <li><a href="#">Life</a></li><li><a href="#">Property</a></li>
+    </ul></div>
+    <div class="footer-links"><h4>Company</h4><ul>
+      <li><a href="#">About Us</a></li><li><a href="#">Careers</a></li>
+      <li><a href="#">News</a></li><li><a href="#">Contact</a></li>
+    </ul></div>
+    <div class="footer-links"><h4>Legal</h4><ul>
+      <li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Use</a></li>
+      <li><a href="#">Complaints</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 InsureSuite Malawi. Regulated by the Reserve Bank of Malawi.</span>
+    <span>Blantyre | Lilongwe | Mzuzu</span>
+  </div>
+</footer>
+<script src="js/app.js"></script></body></html>

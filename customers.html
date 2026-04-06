@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Claims | InsureSuite</title>
+  <title>Customers | InsureSuite</title>
   <link rel="stylesheet" href="css/style.css">
   
 </head>
@@ -30,7 +30,7 @@
     <div class="top-bar">
       <div style="display:flex;align-items:center;gap:1rem;">
         <button id="sideToggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">☰</button>
-        <span class="top-bar-title">Claims</span>
+        <span class="top-bar-title">Customers</span>
       </div>
       <div class="user-chip">
         <div class="avatar">TI</div>
@@ -42,16 +42,15 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.8rem;">
     <div class="pill-row" style="margin:0;">
       <span class="pill active" onclick="filterTable('')">All</span>
-      <span class="pill" onclick="filterTable('pending')">Pending</span>
-       <span class="pill" onclick="filterTable('approved')">Approved</span>
-       <span class="pill" onclick="filterTable('rejected')">Rejected</span>
+      <span class="pill" onclick="filterTable('active')">Active</span>
+       <span class="pill" onclick="filterTable('pending')">Pending</span>
     </div>
     <input type="text" id="searchBox" placeholder="🔍 Search..." style="width:220px;padding:.5rem .8rem;font-size:.85rem;">
   </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>ID</th><th>Policy</th><th>Customer</th><th>Type</th><th>Amount</th><th>Status</th><th>Filed</th></tr></thead>
-      <tbody id="claimsTable"></tbody>
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Policies</th><th>Status</th></tr></thead>
+      <tbody id="customersTable"></tbody>
     </table>
   </div>
 </div>
@@ -61,13 +60,13 @@
 function filterTable(val){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   event.target.classList.add('active');
-  document.querySelectorAll('#claimsTable tr').forEach(r=>{
+  document.querySelectorAll('#customersTable tr').forEach(r=>{
     r.style.display = val===''||r.textContent.toLowerCase().includes(val) ? '' : 'none';
   });
 }
 document.addEventListener('input',()=>{
   const q=document.getElementById('searchBox').value.toLowerCase();
-  document.querySelectorAll('#claimsTable tr').forEach(r=>{
+  document.querySelectorAll('#customersTable tr').forEach(r=>{
     r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
   });
 });

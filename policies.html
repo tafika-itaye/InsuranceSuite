@@ -1,289 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InsureSuite – Policies</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Policies | InsureSuite</title>
+  <link rel="stylesheet" href="css/style.css">
+  
 </head>
-<body class="policies-page">
+<body><div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">Insure<span>Suite</span></div>
+      <ul class="sidebar-nav">
+        <li class="nav-section">Main</li>
+        <li><a href="dashboard.html">🏠 Dashboard</a></li>
+        <li class="nav-section">Insurance</li>
+        <li><a href="policies.html">📋 Policies</a></li>
+        <li><a href="claims.html">🛡️ Claims</a></li>
+        <li><a href="customers.html">👥 Customers</a></li>
+        <li><a href="brokers.html">🤝 Brokers</a></li>
+        <li class="nav-section">Public</li>
+        <li><a href="quotes.html">💬 Get a Quote</a></li>
+        <li><a href="index.html">🌐 Public Site</a></li>
+        <li class="nav-section">Account</li>
+        <li><a href="#" class="logout-btn">🔓 Logout</a></li>
+      </ul>
+    </aside>
+<div class="main-content">
 
-  <header class="suite-header">
-    <h1>InsureSuite</h1>
-    <div class="user-nav">
-      <span id="sessionInfo"></span> •
-      <a href="index.html">Logout</a>
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button id="sideToggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">☰</button>
+        <span class="top-bar-title">Policies</span>
+      </div>
+      <div class="user-chip">
+        <div class="avatar">TI</div>
+        <span style="font-size:.85rem;color:#6b7c93;">Tafika Itaye &nbsp;|&nbsp; Admin</span>
+        <a href="#" class="logout-btn" style="font-size:.8rem;color:#e63946;margin-left:.5rem;">Logout</a>
+      </div>
     </div>
-  </header>
-
-  <nav class="main-menu">
-    <a href="dashboard.html" class="menu-item">Dashboard</a>
-    <a href="claims.html" class="menu-item">Claims</a>
-    <a href="policies.html" class="menu-item active">Policies</a>
-    <a href="crm.html" class="menu-item">CRM & Renewals</a>
-    <a href="portfolio.html" class="menu-item">Portfolio</a>
-    <a href="documents.html" class="menu-item">Documents</a>
-    <a href="admin.html" class="menu-item">Admin</a>
-  </nav>
-
-  <main class="page-main">
-
-    <section class="section-header">
-      <h2>Policy Administration</h2>
-      <button id="newPolicyBtn" class="btn btn-primary">Issue New Policy</button>
-    </section>
-
-    <div class="search-bar">
-      <label for="policySearchInput">Search Policies</label>
-      <input id="policySearchInput" type="text" placeholder="Policy #, customer, class, status..." />
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.8rem;">
+    <div class="pill-row" style="margin:0;">
+      <span class="pill active" onclick="filterTable('')">All</span>
+      <span class="pill" onclick="filterTable('active')">Active</span>
+       <span class="pill" onclick="filterTable('pending')">Pending</span>
     </div>
-
-    <div id="policyFormWrap" class="form-card" style="display:none;">
-      <h3>Issue Policy</h3>
-      <form id="policyForm">
-        <div class="form-row">
-          <label>Customer</label>
-          <input type="text" id="policyCustomer" required />
-        </div>
-        <div class="form-row">
-          <label>Class</label>
-          <select id="policyClass" required>
-            <option value="Motor">Motor</option>
-            <option value="Fire">Fire</option>
-            <option value="Life">Life</option>
-            <option value="Health">Health</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Inception Date</label>
-          <input type="date" id="policyInception" required />
-        </div>
-        <div class="form-row">
-          <label>Expiry Date</label>
-          <input type="date" id="policyExpiry" required />
-        </div>
-        <div class="form-row">
-          <label>Sum Insured</label>
-          <input type="number" id="policySumInsured" required />
-        </div>
-        <div class="form-row">
-          <label>Premium</label>
-          <input type="number" id="policyPremium" required />
-        </div>
-        <div class="form-row">
-          <button type="submit" class="btn btn-primary">Save Policy</button>
-          <button type="button" id="cancelPolicyBtn" class="btn btn-secondary">Cancel</button>
-        </div>
-      </form>
-    </div>
-
-    <table id="policiesTable" class="data-table">
-      <thead>
-        <tr>
-          <th>Policy #</th>
-          <th>Customer</th>
-          <th>Class</th>
-          <th>Inception</th>
-          <th>Expiry</th>
-          <th>Status</th>
-          <th>Premium</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+    <input type="text" id="searchBox" placeholder="🔍 Search..." style="width:220px;padding:.5rem .8rem;font-size:.85rem;">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Premium</th><th>Status</th><th>Start</th><th>End</th></tr></thead>
+      <tbody id="policiesTable"></tbody>
     </table>
-
-    <section style="margin-top:2rem;">
-      <h3>Endorsements</h3>
-      <table id="endorsementsTable" class="data-table">
-        <thead>
-          <tr>
-            <th>Policy #</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Effective Date</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-  </main>
-
-  <script>
-        // DUMMY DATA FOR POLICIES PAGE
-    window.data = {
-      branches: [
-        { id: 1, name: "Head Office – Blantyre", code: "BO" },
-        { id: 2, name: "Lilongwe Branch", code: "LW" },
-        { id: 3, name: "Mzuzu Branch", code: "MZ" }
-      ],
-      policies: [
-        { id: 101, policyNo: "POL-2025-001", customer: "Nyasa Insurance Agency", class: "Motor", inception: "2025-01-01", expiry: "2026-01-01", status: "Active", premium: 240000 },
-        { id: 102, policyNo: "POL-2025-002", customer: "City Mall Ltd",          class: "Fire",  inception: "2025-02-01", expiry: "2026-02-01", status: "Active", premium: 480000 },
-        { id: 103, policyNo: "POL-2025-003", customer: "AutoPlus Ltd",           class: "Motor", inception: "2024-12-01", expiry: "2025-12-01", status: "Lapsed", premium: 220000 },
-        { id: 104, policyNo: "POL-2025-004", customer: "Rural Transport Co-op",  class: "Motor", inception: "2025-03-01", expiry: "2026-03-01", status: "Active", premium: 330000 },
-        { id: 105, policyNo: "POL-2025-005", customer: "GreenGrocers Ltd",       class: "Fire",  inception: "2025-04-01", expiry: "2026-04-01", status: "Active", premium: 510000 }
-      ],
-      endorsements: [
-        { policyNo: "POL-2025-002", type: "Premium Adjustment", description: "Fire load recalculated after stock increase", effectiveDate: "2025-04-10" },
-        { policyNo: "POL-2025-004", type: "Name Change",        description: "Customer renamed after merger", effectiveDate: "2025-04-15" }
-      ]
-    };
-
-    // APP LOGIC
-    const app = {
-      session: null,
-
-      // Load stored session
-      loadSession() {
-        try {
-          const s = localStorage.getItem("insuresuite-session");
-          if (s) this.session = JSON.parse(s);
-        } catch (e) {
-          // ignore invalid JSON
-        }
-      },
-
-      // Require valid session to show page
-      requireSession() {
-        if (!this.session) {
-          window.location = "index.html";
-          return false;
-        }
-        return true;
-      },
-
-      // Set role + branch in header
-      setHeader() {
-        const el = document.getElementById("sessionInfo");
-        if (!el || !this.session) return;
-        const branch = window.data.branches.find(b => b.id === this.session.branchId);
-        el.textContent = `${this.session.role} • ${branch ? branch.name : "Unknown Branch"}`;
-      },
-
-      // Get filtered policies by search term
-      getFilteredPolicies() {
-        const term = document.getElementById("policySearchInput").value.trim().toLowerCase();
-        return window.data.policies.filter(p => {
-          const text = `${p.policyNo} ${p.customer} ${p.class} ${p.status}`.toLowerCase();
-          return text.includes(term);
-        });
-      },
-
-      // Render policies table
-      renderPolicies() {
-        const tbody = document.querySelector("#policiesTable tbody");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-
-        this.getFilteredPolicies().forEach(policy => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${policy.policyNo}</td>
-            <td>${policy.customer}</td>
-            <td>${policy.class}</td>
-            <td>${policy.inception}</td>
-            <td>${policy.expiry}</td>
-            <td><span class="status-pill ${policy.status.toLowerCase()}">${policy.status}</span></td>
-            <td>${policy.premium}</td>
-            <td>
-              <button class="btn btn-xs btn-primary" data-id="${policy.id}" data-action="view">View</button>
-              <button class="btn btn-xs btn-secondary" data-id="${policy.id}" data-action="endorse">Endorse</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        tbody.querySelectorAll("button[data-action]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const id = parseInt(btn.dataset.id);
-            const policy = window.data.policies.find(x => x.id === id);
-            if (!policy) return;
-
-            if (btn.dataset.action === "view") {
-              alert(`Policy ${policy.policyNo}
-Customer: ${policy.customer}
-Class: ${policy.class}
-Status: ${policy.status}
-Premium: ${policy.premium}`);
-            } else if (btn.dataset.action === "endorse") {
-              alert(`Endorsement flow for ${policy.policyNo} (demo only).`);
-            }
-          });
-        });
-      },
-
-      // Render endorsements table
-      renderEndorsements() {
-        const tbody = document.querySelector("#endorsementsTable tbody");
-        if (!tbody) return;
-        tbody.innerHTML = "";
-
-        window.data.endorsements.forEach(e => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${e.policyNo}</td>
-            <td>${e.type}</td>
-            <td>${e.description}</td>
-            <td>${e.effectiveDate}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      },
-
-      // Policy form logic
-      initForm() {
-        const wrap = document.getElementById("policyFormWrap");
-        const form = document.getElementById("policyForm");
-
-        // Show form
-        document.getElementById("newPolicyBtn").addEventListener("click", () => {
-          wrap.style.display = "block";
-        });
-
-        // Hide form
-        document.getElementById("cancelPolicyBtn").addEventListener("click", () => {
-          wrap.style.display = "none";
-        });
-
-        // Submit new policy
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const newId = window.data.policies.reduce((m, p) => Math.max(m, p.id), 0) + 1;
-          window.data.policies.push({
-            id: newId,
-            policyNo: `POL-${Date.now().toString().slice(-6)}`,
-            customer: document.getElementById("policyCustomer").value.trim(),
-            class: document.getElementById("policyClass").value,
-            inception: document.getElementById("policyInception").value,
-            expiry: document.getElementById("policyExpiry").value,
-            status: "Active",
-            premium: parseFloat(document.getElementById("policyPremium").value || "0")
-          });
-
-          form.reset();
-          wrap.style.display = "none";
-          this.renderPolicies();
-        });
-
-        // Filter policies on search
-        document.getElementById("policySearchInput").addEventListener("input", () => this.renderPolicies());
-      },
-
-      // Initialize page
-      init() {
-        this.loadSession();
-        if (!this.requireSession()) return;
-        this.setHeader();
-        this.renderPolicies();
-        this.renderEndorsements();
-        this.initForm();
-      }
-    };
-
-    // Run on page load
-    document.addEventListener("DOMContentLoaded", () => app.init());
-  </script>
-</body>
-</html>
+  </div>
+</div>
+</div>
+</div>
+<script>
+function filterTable(val){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('#policiesTable tr').forEach(r=>{
+    r.style.display = val===''||r.textContent.toLowerCase().includes(val) ? '' : 'none';
+  });
+}
+document.addEventListener('input',()=>{
+  const q=document.getElementById('searchBox').value.toLowerCase();
+  document.querySelectorAll('#policiesTable tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+});
+</script>
+<script src="js/data.js"></script><script src="js/app.js"></script></body></html>
